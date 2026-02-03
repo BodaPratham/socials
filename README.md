@@ -34,3 +34,16 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+-------------------------------------------------------
+Day 3 
+
+💡 What you learned today:
+RLS (Row Level Security): This is the gold standard for production. It means even if a hacker tries to send a command to delete someone else's link, the Database itself will say "No, you don't own this."
+
+Relationships: By using REFERENCES auth.users, you've connected your tables so that when a user deletes their account, their profile and links are automatically cleaned up (Cascade Delete).
+
+Automation: You wrote a "Trigger," which is a mini-program that lives inside your database to handle tasks for you.
+
+-------------------------------------------------------
+Day 4
