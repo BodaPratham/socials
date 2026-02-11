@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
+
 // 1. SIGNUP ACTION
 export async function signup(formData: FormData) {
   const supabase = await createClient()
@@ -99,5 +100,40 @@ export async function deleteLink(linkId: string) {
     .eq('id', linkId)
 
   if (error) console.error(error)
+  revalidatePath('/dashboard')
+} 
+
+
+export async function updateProfile(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const c_username = formData.get('c_username') as string
+  const bio = formData.get('bio') as string
+  const upi = formData.get('upi') as string
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ 
+      c_username: c_username.toLowerCase().replace(/\s/g, ''), // Clean the username
+      bio, 
+      upi_id: upi 
+    })
+    .eq('id', user.id)
+
+  if (!error) {
+    revalidatePath('/dashboard')
+    // Crucial: Revalidate the dynamic route
+    revalidatePath(`/${c_username}`) 
+  }
+}
+
+export async function setTemplate(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const templateId = formData.get('templateId') as string
+
+  await supabase.from('profiles').update({ template_id: templateId }).eq('id', user?.id)
   revalidatePath('/dashboard')
 }
