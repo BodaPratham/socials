@@ -1,0 +1,1086 @@
+dashboard 
+
+1 10% must be collaps able 
+
+Mylink
+--links - where will be able to connect all the social media and other links and write bio and all other text their 
+
+-- shop - where we will be add our products such as embed yt video, social media live post 
+or can add any video or product link form outside with image 
+
+-- design - where we will be change the design 
+theme, name, the profile picture and overall styling and the content of the page 
+
+Earnings 
+-- Overview - like a link traking we will see that how many people click the links and will connect via paypal or razor pay to see our earning from the product or the gift model which we have in our app 
+
+Audience 
+- where will get all the details of our Audience like basic detail like email and gender from the contact form and want to add that link please algorithim like comment the word "" and get the file thing want to add in this software with this and need all information in this 
+
+Insights
+-- where will get all insights from Instagram insights for the page  |
+
+
+___________________________________
+
+'use client'
+
+
+
+import { useState, useEffect, useRef } from 'react'
+
+import { createClient } from '@/utils/supabase/client'
+
+// --- COMPLETE ICONSET ---
+
+import { 
+
+  Link2, ShoppingBag, Palette, BarChart3, Users, DollarSign, 
+
+  Settings, Menu, Zap, ChevronDown, ChevronRight, Plus, 
+
+  Trash2, Instagram, Youtube, Phone, Gift, Image as ImageIcon, 
+
+  Play, Loader2, Camera, ExternalLink, GripVertical, Share2, 
+
+  MoreHorizontal, CreditCard, Monitor, Sparkles, Globe,
+
+  Check, LayoutGrid, Layers, Smartphone, Mail, Type, FormInput
+
+} from 'lucide-react'
+
+
+
+// ==========================================
+
+// TYPES & INTERFACES
+
+// ==========================================
+
+type LinkItem = {
+
+  id?: string
+
+  user_id?: string
+
+  title: string
+
+  url: string
+
+  icon_type?: string
+
+  is_active?: boolean
+
+  position?: number
+
+  type?: 'standard' | 'youtube' | 'tip' | 'form' | 'file' | 'social' | 'divider' | 'shop' | 'text' | 'contact'
+
+}
+
+
+
+type Product = {
+
+  id: string
+
+  name: string
+
+  price: string
+
+  image_url?: string
+
+}
+
+
+
+type Profile = {
+
+  id: string; c_username: string; bio: string; avatar_url: string;
+
+  whatsapp_number: string; insta_username: string; upi_id: string;
+
+  theme_color?: string;
+
+}
+
+
+
+export default function MasterArchitectureDashboard() {
+
+  // --- DATABASE & REFS ---
+
+  const supabase = createClient()
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  
+
+  // --- NAVIGATION STATE ---
+
+  const [activeTab, setActiveTab] = useState('links') 
+
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
+  const [isMyLinkOpen, setIsMyLinkOpen] = useState(true)
+
+
+
+  // --- ENGINE STATE ---
+
+  const [loading, setLoading] = useState(false)
+
+  const [uploading, setUploading] = useState(false)
+
+  const [initialLoading, setInitialLoading] = useState(true)
+
+
+
+  // --- DATA STATE ---
+
+  const [profile, setProfile] = useState<Profile>({
+
+    id: '', c_username: '', bio: '', avatar_url: '',
+
+    whatsapp_number: '', insta_username: '', upi_id: '',
+
+    theme_color: '#A855F7'
+
+  })
+
+  const [links, setLinks] = useState<LinkItem[]>([])
+
+  const [products, setProducts] = useState<Product[]>([
+
+    { id: '1', name: 'Digital Preset', price: '19.00' }
+
+  ])
+
+  const [showAddMenu, setShowAddMenu] = useState(false)
+
+
+
+  // ==========================================
+
+  // HELPER: UTILITIES
+
+  // ==========================================
+
+  const getYouTubeID = (url: string) => {
+
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+
+    const match = url.match(regExp)
+
+    return (match && match[2].length === 11) ? match[2] : null
+
+  }
+
+
+
+  // ==========================================
+
+  // DATA SYNCHRONIZATION
+
+  // ==========================================
+
+  useEffect(() => {
+
+    const fetchAllData = async () => {
+
+      try {
+
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (user) {
+
+          const { data: pData } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+
+          if (pData) setProfile({
+
+             id: pData.id ?? '',
+
+             c_username: pData.c_username ?? '',
+
+             bio: pData.bio ?? '',
+
+             avatar_url: pData.avatar_url ?? '',
+
+             whatsapp_number: pData.whatsapp_number ?? '',
+
+             insta_username: pData.insta_username ?? '',
+
+             upi_id: pData.upi_id ?? '',
+
+             theme_color: pData.theme_color ?? '#A855F7'
+
+          })
+
+          
+
+          const { data: lData } = await supabase.from('links').select('*').eq('user_id', user.id).order('position')
+
+          if (lData) setLinks(lData)
+
+
+
+          // Note: In a real app, products would also fetch from a 'products' table here
+
+        }
+
+      } catch (err) {
+
+        console.error("Fetch error", err)
+
+      } finally {
+
+        setInitialLoading(false)
+
+      }
+
+    }
+
+    fetchAllData()
+
+  }, [])
+
+
+
+  const handleDeploy = async () => {
+
+    setLoading(true)
+
+    try {
+
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) return
+
+      
+
+      await supabase.from('profiles').update(profile).eq('id', user.id)
+
+      
+
+      // Clean sync for links
+
+      await supabase.from('links').delete().eq('user_id', user.id)
+
+      const toInsert = links.map((l, i) => ({ 
+
+        user_id: user.id, 
+
+        title: l.title, 
+
+        url: l.url, 
+
+        position: i, 
+
+        is_active: true, 
+
+        type: l.type 
+
+      }))
+
+      await supabase.from('links').insert(toInsert)
+
+      
+
+      alert("✅ Digital Architecture Successfully Deployed")
+
+    } catch (err) {
+
+      alert("Deployment failed. Check console.")
+
+    } finally {
+
+      setLoading(false)
+
+    }
+
+  }
+
+
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const file = e.target.files?.[0]
+
+    if (!file) return
+
+    setUploading(true)
+
+    try {
+
+      const { data: { user } } = await supabase.auth.getUser()
+
+      const path = `avatars/${user?.id}-${Date.now()}`
+
+      await supabase.storage.from('avatars').upload(path, file)
+
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+
+      setProfile(prev => ({ ...prev, avatar_url: publicUrl }))
+
+    } finally {
+
+      setUploading(false)
+
+    }
+
+  }
+
+
+
+  // ==========================================
+
+  // TAB: LINKS (THE BUILDER)
+
+  // ==========================================
+
+  const LinksTab = () => (
+
+    <div className="space-y-8 animate-in fade-in duration-500">
+
+      {/* Identity Node */}
+
+      <section className="bg-white border border-zinc-100 p-10 rounded-[3rem] shadow-sm flex items-center gap-12">
+
+        <div className="relative group" onClick={() => fileInputRef.current?.click()}>
+
+          <input type="file" ref={fileInputRef} onChange={handleAvatarUpload} hidden accept="image/*" />
+
+          <div className="w-32 h-32 bg-zinc-50 rounded-full border-2 border-dashed border-zinc-200 flex items-center justify-center overflow-hidden cursor-pointer hover:border-purple-400 transition-all">
+
+            {profile.avatar_url ? <img src={profile.avatar_url} className="w-full h-full object-cover" /> : <ImageIcon size={32} className="text-zinc-200" />}
+
+            {uploading && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><Loader2 className="animate-spin text-purple-600" /></div>}
+
+          </div>
+
+          <div className="absolute bottom-1 right-1 p-2.5 bg-zinc-900 text-white rounded-full border-4 border-white"><Camera size={14} /></div>
+
+        </div>
+
+        <div className="flex-1 grid grid-cols-2 gap-8">
+
+          <div className="space-y-2">
+
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Handle</label>
+
+            <input value={profile.c_username} onChange={e => setProfile({...profile, c_username: e.target.value})} className="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-purple-500/10" />
+
+          </div>
+
+          <div className="space-y-2">
+
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Bio</label>
+
+            <input value={profile.bio} onChange={e => setProfile({...profile, bio: e.target.value})} className="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-purple-500/10" />
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      {/* Social Input Bar */}
+
+      <section className="bg-white border border-zinc-100 p-8 rounded-[2.5rem] shadow-sm grid grid-cols-3 gap-6">
+
+        <div className="relative"><Instagram size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300"/><input value={profile.insta_username} onChange={e => setProfile({...profile, insta_username: e.target.value})} placeholder="Instagram" className="w-full pl-12 p-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-xs font-bold outline-none" /></div>
+
+        <div className="relative"><Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300"/><input value={profile.whatsapp_number} onChange={e => setProfile({...profile, whatsapp_number: e.target.value})} placeholder="WhatsApp" className="w-full pl-12 p-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-xs font-bold outline-none" /></div>
+
+        <div className="relative"><DollarSign size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300"/><input value={profile.upi_id} onChange={e => setProfile({...profile, upi_id: e.target.value})} placeholder="UPI ID" className="w-full pl-12 p-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-xs font-bold outline-none" /></div>
+
+      </section>
+
+
+
+      {/* Block List */}
+
+      <div className="space-y-4">
+
+        {links.map((link, index) => (
+
+          <div key={index} className="bg-white border border-zinc-100 p-6 rounded-[2.5rem] flex items-center gap-6 group hover:shadow-md transition-all">
+
+            <div className="cursor-grab text-zinc-200"><GripVertical size={20} /></div>
+
+            
+
+            <div className={`p-4 rounded-2xl ${
+
+              link.type === 'youtube' ? 'bg-red-50 text-red-500' : 
+
+              link.type === 'social' ? 'bg-pink-50 text-pink-500' : 
+
+              link.type === 'shop' ? 'bg-violet-50 text-violet-500' : 'bg-zinc-50 text-zinc-300'
+
+            }`}>
+
+              {link.type === 'youtube' ? <Play size={22} /> : link.type === 'social' ? <Instagram size={22} /> : link.type === 'shop' ? <ShoppingBag size={22} /> : <Link2 size={22} />}
+
+            </div>
+
+
+
+            <div className="flex-1 grid grid-cols-2 gap-4">
+
+              <div className="space-y-1">
+
+                <span className="text-[8px] font-black text-zinc-300 uppercase tracking-widest">{link.type} Title</span>
+
+                <input 
+
+                  value={link.title} 
+
+                  onChange={e => { const nl = [...links]; nl[index].title = e.target.value; setLinks(nl); }} 
+
+                  className="w-full font-black text-sm uppercase outline-none" 
+
+                  placeholder="Block Title"
+
+                />
+
+              </div>
+
+              <div className="space-y-1">
+
+                <span className="text-[8px] font-black text-zinc-300 uppercase tracking-widest">Config/URL</span>
+
+                {link.type === 'shop' ? (
+
+                  <select 
+
+                    className="w-full bg-zinc-50 p-3 rounded-xl text-xs font-bold text-zinc-500 outline-none appearance-none"
+
+                    value={link.title}
+
+                    onChange={e => {
+
+                      const nl = [...links];
+
+                      nl[index].title = e.target.value;
+
+                      setLinks(nl);
+
+                    }}
+
+                  >
+
+                    <option value="">Select product...</option>
+
+                    {products.map(p => <option key={p.id} value={p.name}>{p.name} — ${p.price}</option>)}
+
+                  </select>
+
+                ) : (
+
+                  <input 
+
+                    value={link.url} 
+
+                    onChange={e => { const nl = [...links]; nl[index].url = e.target.value; setLinks(nl); }} 
+
+                    placeholder={link.type === 'youtube' ? 'Paste YouTube URL' : link.type === 'social' ? 'Enter Instagram Username' : 'Destination URL'} 
+
+                    disabled={link.type === 'divider'}
+
+                    className={`w-full bg-zinc-50 p-3 rounded-xl text-xs text-zinc-500 outline-none ${link.type === 'divider' ? 'opacity-20' : ''}`} 
+
+                  />
+
+                )}
+
+              </div>
+
+            </div>
+
+            <button onClick={() => setLinks(links.filter((_, i) => i !== index))} className="p-3 text-zinc-200 hover:text-red-500"><Trash2 size={20} /></button>
+
+          </div>
+
+        ))}
+
+
+
+        {!showAddMenu ? (
+
+          <button onClick={() => setShowAddMenu(true)} className="w-full py-10 border-2 border-dashed border-zinc-100 rounded-[3rem] text-zinc-300 hover:text-purple-600 hover:bg-purple-50/30 transition-all flex flex-col items-center justify-center gap-3">
+
+            <div className="p-4 bg-zinc-50 rounded-full shadow-sm"><Plus size={24} /></div>
+
+            <span className="font-black uppercase tracking-[0.3em] text-[10px]">Add New Block</span>
+
+          </button>
+
+        ) : (
+
+          <div className="bg-zinc-50/50 border border-zinc-100 p-8 rounded-[3rem] animate-in slide-in-from-top-4 duration-500">
+
+            <div className="flex justify-between mb-8">
+
+              <h3 className="font-black text-[11px] text-zinc-400 uppercase tracking-widest">Architecture Modules</h3>
+
+              <button onClick={() => setShowAddMenu(false)} className="text-[10px] font-black uppercase text-zinc-400 hover:text-black">Cancel</button>
+
+            </div>
+
+            <div className="grid grid-cols-4 gap-4">
+
+              {[
+
+                { label: 'URL Link', type: 'standard', icon: <Link2 size={20}/>, color: 'hover:text-blue-500' },
+
+                { label: 'Video Feed', type: 'youtube', icon: <Play size={20}/>, color: 'hover:text-red-500' },
+
+                { label: 'Tip Jar', type: 'tip', icon: <DollarSign size={20}/>, color: 'hover:text-orange-500' },
+
+                { label: 'Subscribers', type: 'form', icon: <Users size={20}/>, color: 'hover:text-purple-500' },
+
+                { label: 'File Drop', type: 'file', icon: <Layers size={20}/>, color: 'hover:text-emerald-500' },
+
+                { label: 'Social Sync', type: 'social', icon: <Instagram size={20}/>, color: 'hover:text-pink-500' },
+
+                { label: 'Divider', type: 'divider', icon: <MoreHorizontal size={20}/>, color: 'hover:text-zinc-400' },
+
+                { label: 'Shop Item', type: 'shop', icon: <ShoppingBag size={20}/>, color: 'hover:text-violet-500' },
+
+              ].map((b) => (
+
+                <button 
+
+                  key={b.label} 
+
+                  onClick={() => { setLinks([...links, { title: b.label, url: '', type: b.type as any }]); setShowAddMenu(false); }} 
+
+                  className={`flex flex-col items-center justify-center p-6 bg-white border border-zinc-100 rounded-[2rem] gap-3 transition-all hover:shadow-xl ${b.color}`}
+
+                >
+
+                  {b.icon}<span className="font-black uppercase text-[9px]">{b.label}</span>
+
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        )}
+
+      </div>
+
+    </div>
+
+  )
+
+
+
+  // ==========================================
+
+  // TAB: SHOP (THE INVENTORY)
+
+  // ==========================================
+
+  const ShopTab = () => (
+
+    <div className="space-y-10 animate-in fade-in duration-500">
+
+      <header className="flex justify-between items-center">
+
+        <div>
+
+          <h2 className="text-3xl font-black uppercase tracking-tighter italic">Store Inventory</h2>
+
+          <p className="text-zinc-400 text-[10px] font-black uppercase tracking-widest mt-1">Add items here to feature them on your profile</p>
+
+        </div>
+
+        <button 
+
+          onClick={() => setProducts([...products, { id: Date.now().toString(), name: 'New Product', price: '0.00' }])}
+
+          className="px-8 py-4 bg-zinc-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 transition-all shadow-xl"
+
+        >
+
+          Create Product
+
+        </button>
+
+      </header>
+
+
+
+      <div className="grid grid-cols-2 gap-8">
+
+        {products.map((product, idx) => (
+
+          <div key={product.id} className="bg-white border border-zinc-100 p-8 rounded-[3rem] shadow-sm flex flex-col gap-6 group hover:shadow-md transition-all">
+
+            <div className="w-full aspect-square bg-zinc-50 rounded-[2.5rem] flex items-center justify-center text-zinc-200 border border-dashed border-zinc-100">
+
+              <ImageIcon size={40} />
+
+            </div>
+
+            <div className="space-y-4">
+
+              <div className="space-y-1">
+
+                <span className="text-[8px] font-black text-zinc-300 uppercase tracking-widest">Product Title</span>
+
+                <input 
+
+                  value={product.name} 
+
+                  onChange={(e) => {
+
+                    const np = [...products];
+
+                    np[idx].name = e.target.value;
+
+                    setProducts(np);
+
+                  }}
+
+                  className="w-full font-black text-lg outline-none bg-transparent uppercase tracking-tight"
+
+                />
+
+              </div>
+
+              <div className="space-y-1">
+
+                <span className="text-[8px] font-black text-zinc-300 uppercase tracking-widest">Price Tag ($)</span>
+
+                <input 
+
+                  value={product.price} 
+
+                  onChange={(e) => {
+
+                    const np = [...products];
+
+                    np[idx].price = e.target.value;
+
+                    setProducts(np);
+
+                  }}
+
+                  className="w-full font-black text-lg outline-none text-purple-600 bg-transparent"
+
+                />
+
+              </div>
+
+            </div>
+
+            <button 
+
+              onClick={() => setProducts(products.filter(p => p.id !== product.id))}
+
+              className="text-[9px] font-black uppercase text-zinc-300 hover:text-red-500 transition-colors self-start"
+
+            >
+
+              Delete Product
+
+            </button>
+
+          </div>
+
+        ))}
+
+      </div>
+
+    </div>
+
+  )
+
+
+
+  // ==========================================
+
+  // TAB: DESIGN (DUMMY FOR NOW)
+
+  // ==========================================
+
+  const DesignTab = () => (
+
+    <div className="h-[500px] flex flex-col items-center justify-center">
+
+      <Palette size={48} className="text-zinc-100 mb-4" />
+
+      <h2 className="text-xl font-black uppercase italic">Visual Studio</h2>
+
+      <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-2">Coming soon: Themes & Branding</p>
+
+    </div>
+
+  )
+
+
+
+  if (initialLoading) return (
+
+    <div className="h-screen flex items-center justify-center bg-black">
+
+      <div className="flex flex-col items-center gap-4">
+
+        <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+
+        <span className="text-white font-black uppercase text-[10px] tracking-[0.5em]">Syncing System...</span>
+
+      </div>
+
+    </div>
+
+  )
+
+
+
+  // ==========================================
+
+  // MAIN RENDER ENGINE
+
+  // ==========================================
+
+  return (
+
+    <div className="flex h-screen bg-[#050507] text-[#E4E4E7] font-sans overflow-hidden">
+
+      
+
+      {/* SIDEBAR (10% - 260px) */}
+
+      <aside className={`transition-all duration-500 bg-[#09090B] border-r border-white/5 flex flex-col ${isCollapsed ? 'w-20' : 'w-[260px]'}`}>
+
+        <div className="p-8 flex items-center justify-between">
+
+          {!isCollapsed && (
+
+            <div className="flex items-center gap-3">
+
+              <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center"><Zap size={20} className="text-white fill-white" /></div>
+
+              <span className="font-black uppercase text-xl italic tracking-tighter">Socials</span>
+
+            </div>
+
+          )}
+
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-2 text-zinc-500 hover:bg-white/5 rounded-lg transition-all"><Menu size={20} /></button>
+
+        </div>
+
+
+
+        <nav className="flex-1 px-4 py-4 space-y-2">
+
+          <button onClick={() => setIsMyLinkOpen(!isMyLinkOpen)} className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 text-white">
+
+            <div className="flex items-center gap-4">
+
+              <Link2 size={20} className="text-purple-500" />
+
+              {!isCollapsed && <span className="text-[11px] font-bold uppercase tracking-widest">Architecture</span>}
+
+            </div>
+
+            {!isCollapsed && <ChevronDown size={14} className={isMyLinkOpen ? '' : '-rotate-90'}/>}
+
+          </button>
+
+          
+
+          {!isCollapsed && isMyLinkOpen && (
+
+            <div className="ml-10 mt-2 border-l border-white/5 flex flex-col gap-1">
+
+              <button onClick={() => setActiveTab('links')} className={`p-3 text-[10px] font-black uppercase text-left pl-8 ${activeTab === 'links' ? 'text-purple-500 bg-purple-500/5' : 'text-zinc-500 hover:text-white'}`}>Links</button>
+
+              <button onClick={() => setActiveTab('shop')} className={`p-3 text-[10px] font-black uppercase text-left pl-8 ${activeTab === 'shop' ? 'text-purple-500 bg-purple-500/5' : 'text-zinc-500 hover:text-white'}`}>Shop</button>
+
+              <button onClick={() => setActiveTab('design')} className={`p-3 text-[10px] font-black uppercase text-left pl-8 ${activeTab === 'design' ? 'text-purple-500 bg-purple-500/5' : 'text-zinc-500 hover:text-white'}`}>Design</button>
+
+            </div>
+
+          )}
+
+
+
+          <div className="pt-4 space-y-1">
+
+             {['Analytics', 'Audience', 'Settings'].map(item => (
+
+                <button key={item} className="w-full flex items-center gap-4 p-4 text-zinc-500 rounded-2xl hover:bg-white/5 hover:text-white transition-all">
+
+                  <BarChart3 size={20} />
+
+                  {!isCollapsed && <span className="text-[11px] font-bold uppercase tracking-widest">{item}</span>}
+
+                </button>
+
+             ))}
+
+          </div>
+
+        </nav>
+
+      </aside>
+
+
+
+      {/* WORKSPACE (70%) */}
+
+      <main className="flex-1 overflow-y-auto p-16 bg-[#FDFDFD] text-zinc-900">
+
+        <div className="max-w-4xl mx-auto space-y-10 pb-32">
+
+          <header className="flex justify-between items-end">
+
+            <div className="space-y-3">
+
+              <h1 className="text-6xl font-black italic tracking-tighter uppercase leading-none">Management</h1>
+
+              <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.5em] ml-1">{activeTab} system / v2.0</p>
+
+            </div>
+
+            <button 
+
+              onClick={handleDeploy} 
+
+              disabled={loading}
+
+              className="px-12 py-5 bg-zinc-900 text-white rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-purple-600 transition-all shadow-2xl active:scale-95 disabled:opacity-50"
+
+            >
+
+              {loading ? 'Processing...' : 'Deploy Changes'}
+
+            </button>
+
+          </header>
+
+
+
+          <hr className="border-zinc-100" />
+
+
+
+          <div className="min-h-[600px]">
+
+            {activeTab === 'links' && <LinksTab />}
+
+            {activeTab === 'shop' && <ShopTab />}
+
+            {activeTab === 'design' && <DesignTab />}
+
+          </div>
+
+        </div>
+
+      </main>
+
+
+
+      {/* IPHONE PREVIEW (20% - 380px) */}
+
+      <aside className="w-[420px] bg-white border-l border-zinc-100 flex flex-col items-center justify-center p-8 relative">
+
+        <div className="relative w-full scale-[0.8] origin-center">
+
+          
+
+          {/* Real iPhone Mockup */}
+
+          <div className="relative aspect-[9/19.2] bg-[#0F0F0F] rounded-[3.8rem] p-3 shadow-2xl border-[10px] border-[#1c1c1e]">
+
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-7 bg-black rounded-full z-20" />
+
+            
+
+            <div className="h-full w-full bg-white rounded-[2.8rem] overflow-hidden flex flex-col relative no-scrollbar overflow-y-auto">
+
+              
+
+              <div className="flex-1 pt-16 px-6 pb-12 flex flex-col items-center">
+
+                
+
+                {/* Avatar Preview */}
+
+                <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden mb-5">
+
+                   {profile.avatar_url ? <img src={profile.avatar_url} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-zinc-50" />}
+
+                </div>
+
+                
+
+                <h3 className="font-black text-zinc-900 text-sm uppercase tracking-tight">@{profile.c_username || 'username'}</h3>
+
+                <p className="text-[10px] text-zinc-400 font-bold text-center mt-2 px-4 uppercase leading-relaxed line-clamp-2">
+
+                  {profile.bio || 'Architecting digital space...'}
+
+                </p>
+
+
+
+                {/* Social Icon Bar */}
+
+                <div className="flex gap-4 my-6 text-zinc-200">
+
+                  <Instagram size={14} className={profile.insta_username ? 'text-zinc-900' : ''} />
+
+                  <Phone size={14} className={profile.whatsapp_number ? 'text-zinc-900' : ''} />
+
+                  <DollarSign size={14} className={profile.upi_id ? 'text-zinc-900' : ''} />
+
+                </div>
+
+
+
+                {/* Dynamic Block Renderer */}
+
+                <div className="w-full space-y-4">
+
+                  {links.map((link, i) => {
+
+                    // YOUTUBE
+
+                    if (link.type === 'youtube' && getYouTubeID(link.url)) {
+
+                      return (
+
+                        <div key={i} className="w-full overflow-hidden rounded-[2rem] border border-zinc-100 shadow-sm bg-white">
+
+                          <iframe className="w-full aspect-video" src={`https://www.youtube.com/embed/${getYouTubeID(link.url)}`} frameBorder="0" allowFullScreen />
+
+                          <div className="p-4 text-[9px] font-black uppercase text-zinc-900 text-center">{link.title}</div>
+
+                        </div>
+
+                      )
+
+                    }
+
+                    // SOCIAL GRID
+
+                    if (link.type === 'social') {
+
+                      return (
+
+                        <div key={i} className="w-full space-y-3 pt-2">
+
+                          <div className="flex items-center justify-between px-2">
+
+                            <div className="flex items-center gap-2"><Instagram size={12} /><span className="text-[9px] font-black uppercase">@{link.url || 'feed'}</span></div>
+
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-1">
+
+                            {[1,2,3,4,5,6].map(j => <div key={j} className="aspect-square bg-zinc-50 rounded-lg animate-pulse" />)}
+
+                          </div>
+
+                        </div>
+
+                      )
+
+                    }
+
+                    // SHOP CARD
+
+                    if (link.type === 'shop') {
+
+                      const product = products.find(p => p.name === link.title);
+
+                      return (
+
+                        <div key={i} className="w-full p-2 bg-zinc-50 rounded-[2rem] border border-zinc-100 flex items-center gap-4 group">
+
+                          <div className="w-16 h-16 bg-white rounded-[1.5rem] flex items-center justify-center shadow-sm text-zinc-300"><ShoppingBag size={20} /></div>
+
+                          <div className="flex-1">
+
+                            <div className="text-[10px] font-black uppercase tracking-tight text-zinc-900">{link.title || 'Product'}</div>
+
+                            <div className="text-[8px] font-bold text-purple-600 uppercase mt-1">Buy Now — ${product?.price || '0.00'}</div>
+
+                          </div>
+
+                          <div className="pr-4"><ChevronRight size={14} className="text-zinc-300" /></div>
+
+                        </div>
+
+                      )
+
+                    }
+
+                    // DIVIDER
+
+                    if (link.type === 'divider') {
+
+                      return <div key={i} className="w-full h-[1px] bg-zinc-100 my-4" />
+
+                    }
+
+                    // STANDARD LINK
+
+                    return (
+
+                      <div key={i} className="w-full p-4 rounded-2xl border border-zinc-100 bg-white text-[10px] font-black uppercase tracking-widest text-zinc-900 shadow-sm text-center active:scale-95 transition-all">
+
+                        {link.title || 'Untitled'}
+
+                      </div>
+
+                    )
+
+                  })}
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        {/* Float Status */}
+
+        <div className="absolute bottom-10 flex items-center gap-3 bg-zinc-900 px-6 py-3 rounded-full text-white shadow-2xl">
+
+           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+
+           <span className="text-[9px] font-black uppercase tracking-widest">Live Architectural Preview</span>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+  )
+
+} 
+
+
+
+okay so now there are few more things live we need to add a share link and a web link to the preview page so we can share our profile or see our profile page
+
+and then our shop page logic and crud operations, need to able to add the image, the affilieate link, or if it is an digital product then any pdf upload feature and any more thing as per your suggestion and again give me full code and the social media live feed is not working give me the only code which i need to change or update no extra thing and explaing me every thing where do i need to make this changes 
