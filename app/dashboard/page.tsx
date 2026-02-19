@@ -41,7 +41,7 @@ import {
   FormInput,
   UploadCloud,
   AlignLeft,
-  Shield,
+  Shield
 } from "lucide-react";
 
 // ==========================================
@@ -622,71 +622,14 @@ const ShopTab = ({
 // ==========================================
 
 export default function MasterArchitectureDashboard() {
-  // Replace with your actual UUID from Supabase Auth
+  // 1. CONSTANTS & REFS
   const MASTER_ADMIN_ID = "1cef0ce0-63ef-4289-8053-e186b4284b6a";
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const productImgRef = useRef<HTMLInputElement>(null);
   const digitalFileRef = useRef<HTMLInputElement>(null);
-  // 2. Add these states inside MasterArchitectureDashboard
-  const [templates, setTemplates] = useState<any[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState("midnight");
 
-  // Inside MasterArchitectureDashboard
-  const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [newTemplate, setNewTemplate] = useState({
-    name: "",
-    price: 0,
-    config: {
-      bg_color: "#ffffff",
-      text_color: "#000000",
-      button_radius: "1rem",
-      font_style: "sans",
-    },
-  });
-  const handleSubmitTemplate = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase.from("templates").insert({
-      ...newTemplate,
-      creator_id: user.id,
-      is_approved: false, // Requires Admin (You) to approve
-    });
-
-    if (!error) {
-      alert("🚀 Theme submitted for architectural review!");
-      setShowSubmitModal(false);
-    } else {
-      alert("Submission failed. Check database constraints.");
-    }
-  };
-
-  const handleApproveTemplate = async (templateId: string) => {
-    const { error } = await supabase
-      .from("templates")
-      .update({ is_approved: true })
-      .eq("id", templateId);
-
-    if (!error) {
-      // Refresh the list localy
-      setTemplates((prev) =>
-        prev.map((t) => (t.id === templateId ? { ...t, is_approved: true } : t))
-      );
-      alert("✅ Architecture approved and live in marketplace!");
-    }
-  };
-
-  const [activeTab, setActiveTab] = useState("links");
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isMyLinkOpen, setIsMyLinkOpen] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [activeProductId, setActiveProductId] = useState<string | null>(null);
-
+  // 2. CONSOLIDATED STATE (Declared ONLY once)
   const [profile, setProfile] = useState<Profile>({
     id: "",
     c_username: "",
@@ -696,14 +639,53 @@ export default function MasterArchitectureDashboard() {
     insta_username: "",
     upi_id: "",
     theme_color: "#A855F7",
+    template_id: "midnight"
   });
+  
+  const [templates, setTemplates] = useState<any[]>([]);
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("midnight");
+  const [isDeploying, setIsDeploying] = useState(false);
+  
+  // UI States
+  const [activeTab, setActiveTab] = useState("links");
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMyLinkOpen, setIsMyLinkOpen] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [activeProductId, setActiveProductId] = useState<string | null>(null);
+  const [view, setView] = useState<'studio' | 'browse'>('studio');
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showAddMenu, setShowAddMenu] = useState(false);
 
+  const [newTemplate, setNewTemplate] = useState({
+    name: '',
+    price: 0,
+    config: {
+      bg_color: '#ffffff',
+      text_color: '#000000',
+      card_bg: '#f3f4f6',
+      card_radius: 'rounded-xl',
+      font_family: 'sans',
+      header_image: ''
+    }
+  });
+
+  // 3. SIDE EFFECTS
+  useEffect(() => {
+    // Only trigger if we have a real template_id
+    if (profile?.template_id && profile.template_id !== "midnight") {
+      setIsDeploying(true);
+      const timer = setTimeout(() => setIsDeploying(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [profile?.template_id]);
+
+  // 4. HELPERS
   const getYouTubeID = (url: string) => {
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return match && match[2].length === 11 ? match[2] : null;
   };
@@ -820,58 +802,89 @@ export default function MasterArchitectureDashboard() {
     }
   };
 
+ // At the top of your handleSubmitTemplate function:
+const handleSubmitTemplate = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  // Generate a random UUID in JS using the built-in crypto API
+  const newId = crypto.randomUUID(); 
+
+  const { error } = await supabase.from('templates').insert({
+    id: newId, 
+    name: newTemplate.name,
+    price: newTemplate.price,
+    config: newTemplate.config,
+    is_approved: profile?.id === MASTER_ADMIN_ID
+  });
+
+  if (!error) {
+    // Now you can use 'newId' to redirect or update local state immediately
+    setShowSubmitModal(false);
+  }
+};
+
   const handleUpdateProfile = async (updates: any) => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", user.id);
-
-      if (error) throw error;
-
-      // Refresh local profile state to update the UI
-      setProfile((prev) => ({ ...prev, ...updates }));
-    } catch (error) {
-      console.error("Update failed:", error);
-      alert("Failed to update architecture.");
+    if (!profile?.id) return;
+  
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', profile.id);
+  
+    if (!error) {
+      // This updates your state so the iPhone preview changes color instantly
+      setProfile((prev: any) => ({ ...prev, ...updates }));
+    } else {
+      console.error("Update Error:", error.message);
     }
   };
 
   const handleApplyTheme = async (template: any) => {
+    if (!profile) return;
+  
+    // 1. FREE OR OWNED: Apply immediately
+    // If price is 0 OR the user is the one who created it
     if (template.price === 0 || template.creator_id === profile.id) {
-      return handleUpdateProfile({ template_id: template.id })
+      return handleUpdateProfile({ template_id: template.id });
     }
   
-    const { data: purchase } = await supabase
+    // 2. CHECK PURCHASE HISTORY: Has this user bought it before?
+    const { data: purchase, error: purchaseError } = await supabase
       .from('marketplace_transactions')
       .select('id')
       .eq('template_id', template.id)
       .eq('buyer_id', profile.id)
-      .single()
+      .single();
   
-    if (purchase) return handleUpdateProfile({ template_id: template.id })
+    if (purchase) {
+      return handleUpdateProfile({ template_id: template.id });
+    }
   
-    if (confirm(`Buy "${template.name}" for $${template.price}?`)) {
+    // 3. MOCK PURCHASE FLOW: If not owned and not free
+    const confirmPurchase = confirm(
+      `UNLOCKED REQUIRED: Would you like to license "${template.name}" for $${template.price}?`
+    );
+  
+    if (confirmPurchase) {
+      // Insert transaction (Database trigger handles the revenue split automatically)
       const { error: txError } = await supabase
         .from('marketplace_transactions')
         .insert({
           template_id: template.id,
           buyer_id: profile.id,
           total_amount: template.price
-          // Fees are now calculated automatically by the SQL Trigger!
-        })
+        });
   
-      if (!txError) {
-        handleUpdateProfile({ template_id: template.id })
-        alert("Blueprint licensed!")
+      if (txError) {
+        console.error("Transaction Error:", txError);
+        alert("Transaction failed. Please check your connection.");
+      } else {
+        // Success: Apply the theme now that it is licensed
+        handleUpdateProfile({ template_id: template.id });
+        alert(`✅ ${template.name} is now part of your architecture.`);
       }
     }
-  }
+  };
 
   if (initialLoading)
     return (
@@ -1032,416 +1045,330 @@ export default function MasterArchitectureDashboard() {
                 handleProductUpload={handleProductUpload}
               />
             )}
-            {activeTab === "design" && (
-              <div className="space-y-10 animate-in fade-in duration-500">
-                {/* Admin Queue Section */}
-                {profile?.id === MASTER_ADMIN_ID &&
-                  templates.some((t) => !t.is_approved) && (
-                    <section className="bg-amber-50/50 border-2 border-dashed border-amber-200 rounded-[3rem] p-8">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-amber-500 rounded-lg text-white">
-                          <Shield size={18} />
-                        </div>
-                        <h3 className="font-black uppercase italic tracking-tighter text-amber-900">
-                          Architecture Review Queue
-                        </h3>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {templates
-                          .filter((t) => !t.is_approved)
-                          .map((t) => (
-                            <div
-                              key={t.id}
-                              className="bg-white p-4 rounded-2xl flex items-center justify-between border border-amber-100 shadow-sm"
-                            >
-                              <div className="flex flex-col">
-                                <span className="font-black text-[10px] uppercase tracking-tight">
-                                  {t.name}
-                                </span>
-                                <span className="text-[9px] font-bold text-amber-600">
-                                  ${t.price} Marketplace
-                                </span>
-                              </div>
-                              <button
-                                onClick={() => handleApproveTemplate(t.id)}
-                                className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-[9px] font-black uppercase hover:bg-green-600 transition-all"
-                              >
-                                Approve
-                              </button>
-                            </div>
-                          ))}
-                      </div>
-                    </section>
-                  )}
-
-                {/* Header */}
-                <header className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-3xl font-black uppercase tracking-tighter italic">
-                      Visual Studio
-                    </h2>
-                    <p className="text-zinc-400 text-[10px] font-black uppercase tracking-widest mt-1">
-                      Select a blueprint or engineer your own
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowSubmitModal(true)}
-                    className="px-6 py-3 border-2 border-zinc-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-900 hover:text-white transition-all flex items-center gap-2"
-                  >
-                    <Plus size={14} /> Submit Custom Theme
-                  </button>
-                </header>
-
-                {/* Template Grid */}
-                <div className="grid grid-cols-2 gap-8">
-                  {templates
-                    .filter(
-                      (t) => t.is_approved || t.creator_id === profile?.id
-                    )
-                    .map((template) => (
-                      <div
-                        key={template.id}
-                        onClick={() => handleApplyTheme(template)}
-                        className={`group relative aspect-[4/5] rounded-[2.5rem] border-2 transition-all cursor-pointer overflow-hidden
-          ${
-            profile.template_id === template.id
-              ? "border-purple-600 ring-4 ring-purple-100"
-              : "border-zinc-100 hover:border-zinc-300"
-          }
-        `}
-                      >
-                        <div
-                          className="absolute inset-0 transition-transform group-hover:scale-105"
-                          style={{
-                            backgroundColor:
-                              template.config?.bg_color || "#F4F4F5",
-                          }}
-                        >
-                          {/* Internal Preview Design */}
-                          <div className="p-6 flex flex-col h-full justify-between">
-                            <div className="space-y-2">
-                              <div className="w-10 h-10 rounded-full bg-black/5" />
-                              <div className="w-2/3 h-2 bg-black/5 rounded-full" />
-                            </div>
-                            <div className="space-y-2">
-                              <div className="w-full h-8 rounded-xl bg-black/5 border border-black/5" />
-                              <div className="w-full h-8 rounded-xl bg-black/5 border border-black/5" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
-                          <p className="font-black text-[11px] uppercase tracking-widest">
-                            {template.name}
-                          </p>
-                          <div className="flex justify-between items-center mt-1">
-                            <p className="text-[9px] font-bold opacity-80">
-                              {template.price > 0
-                                ? `$${template.price}`
-                                : "FREE"}
-                            </p>
-                            {!template.is_approved && (
-                              <span className="text-[8px] bg-amber-500 px-2 py-0.5 rounded text-black font-black uppercase">
-                                Pending
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
+           {activeTab === "design" && (
+  <div className="space-y-10 animate-in fade-in duration-500">
+    
+    {/* --- ADMIN QUEUE (Only for Master Admin) --- */}
+    {profile?.id === MASTER_ADMIN_ID && templates.some((t) => !t.is_approved) && (
+      <section className="bg-amber-50/50 border-2 border-dashed border-amber-200 rounded-[3rem] p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-amber-500 rounded-lg text-white">
+            <Shield size={18} />
+          </div>
+          <h3 className="font-black uppercase italic tracking-tighter text-amber-900">Review Queue</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {templates.filter((t) => !t.is_approved).map((t) => (
+            <div key={t.id} className="bg-white p-4 rounded-2xl flex items-center justify-between border border-amber-100 shadow-sm">
+              <div className="flex flex-col">
+                <span className="font-black text-[10px] uppercase tracking-tight">{t.name}</span>
+                <span className="text-[9px] font-bold text-amber-600">${t.price} Marketplace</span>
               </div>
-            )}
+              <button
+                onClick={async () => {
+                  const { error } = await supabase.from('templates').update({ is_approved: true }).eq('id', t.id);
+                  if (!error) setTemplates(prev => prev.map(tmpl => tmpl.id === t.id ? {...tmpl, is_approved: true} : tmpl));
+                }}
+                className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-[9px] font-black uppercase hover:bg-green-600 transition-all"
+              >
+                Approve
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {/* --- HEADER & NAVIGATION --- */}
+    <header className="flex justify-between items-center">
+      <div>
+        <h2 className="text-3xl font-black uppercase tracking-tighter italic">Visual Studio</h2>
+        <p className="text-zinc-400 text-[10px] font-black uppercase tracking-widest mt-1">
+          {view === 'studio' ? "Manage your deployed architecture" : "Marketplace / Discover new themes"}
+        </p>
+      </div>
+      <div className="flex gap-3">
+        {view === 'studio' ? (
+          <button 
+            onClick={() => setView('browse')}
+            className="px-6 py-3 bg-zinc-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 transition-all"
+          >
+            Browse Marketplace
+          </button>
+        ) : (
+          <button 
+            onClick={() => setView('studio')}
+            className="px-6 py-3 border-2 border-zinc-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-900 hover:text-white transition-all"
+          >
+            Back to Studio
+          </button>
+        )}
+      </div>
+    </header>
+
+    {/* --- DYNAMIC CONTENT (STUDIO OR BROWSE) --- */}
+  {/* Template Grid */}
+  <div className="grid grid-cols-2 gap-8 mt-10">
+  {templates.map((template) => (
+  <div
+    key={template.id}
+    onClick={() => handleUpdateProfile({ template_id: template.id })}
+    className={`group relative aspect-[4/5] rounded-[2.5rem] border-2 transition-all cursor-pointer overflow-hidden
+      ${profile?.template_id === template.id ? "border-purple-600 ring-4 ring-purple-100" : "border-zinc-100 hover:border-zinc-300"}
+    `}
+  >
+    {/* Design Preview Engine */}
+    <div 
+      className="absolute inset-0 p-6 flex flex-col items-center" 
+      style={{ backgroundColor: template.config?.bg_color || '#F4F4F5' }}
+    >
+      <div className="w-12 h-12 rounded-full bg-zinc-400/20 mb-6 mt-4" />
+      <div className="w-full space-y-3">
+        <div 
+          className={`h-10 w-full shadow-sm ${template.config?.card_radius}`} 
+          style={{ backgroundColor: template.config?.card_bg || '#FFFFFF' }} 
+        />
+        <div 
+          className={`h-10 w-full shadow-sm opacity-60 ${template.config?.card_radius}`} 
+          style={{ backgroundColor: template.config?.card_bg || '#FFFFFF' }} 
+        />
+      </div>
+    </div>
+
+    {/* Info Label */}
+    <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
+      <p className="font-black text-[12px] uppercase italic tracking-tighter">{template.name}</p>
+      <p className="text-[9px] font-bold opacity-60">{template.price > 0 ? `$${template.price}` : 'FREE'}</p>
+    </div>
+  </div>
+))}
+</div>
+  </div>
+)}
           </div>
         </div>
       </main>
 
       {/* IPHONE PREVIEW */}
       <aside className="w-[420px] bg-white border-l border-zinc-100 flex flex-col items-center justify-center p-8 relative">
-        <div className="relative w-full scale-[0.8] origin-center">
-          <div className="absolute -top-16 flex gap-3 z-10 w-full justify-center px-4">
-            <button
-              onClick={() =>
-                profile.c_username &&
-                window.open(`/${profile.c_username}`, "_blank")
-              }
-              className="flex-1 py-3 bg-white border border-zinc-200 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm hover:bg-zinc-50 hover:scale-105 transition-all"
-            >
-              <Globe size={12} className="text-purple-600" /> Public Web
-            </button>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/${profile.c_username}`
-                );
-                alert("Link Copied!");
-              }}
-              className="flex-1 py-3 bg-zinc-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm hover:bg-zinc-700 hover:scale-105 transition-all"
-            >
-              <Share2 size={12} /> Share Link
-            </button>
+  <div className="relative w-full scale-[0.8] origin-center">
+    {/* Action Buttons */}
+    <div className="absolute -top-16 flex gap-3 z-10 w-full justify-center px-4">
+      <button
+        onClick={() =>
+          profile.c_username &&
+          window.open(`/${profile.c_username}`, "_blank")
+        }
+        className="flex-1 py-3 bg-white border border-zinc-200 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm hover:bg-zinc-50 hover:scale-105 transition-all"
+      >
+        <Globe size={12} className="text-purple-600" /> Public Web
+      </button>
+      <button
+        onClick={() => {
+          navigator.clipboard.writeText(
+            `${window.location.origin}/${profile.c_username}`
+          );
+          alert("Link Copied!");
+        }}
+        className="flex-1 py-3 bg-zinc-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm hover:bg-zinc-700 hover:scale-105 transition-all"
+      >
+        <Share2 size={12} /> Share Link
+      </button>
+    </div>
+
+    {/* iPhone Frame with Deploy Pulse Effect */}
+    <div className={`relative aspect-[9/19.2] bg-[#0F0F0F] rounded-[3.8rem] p-3 shadow-2xl border-[10px] border-[#1c1c1e] transition-all duration-500 ${isDeploying ? 'ring-[20px] ring-purple-500/20 scale-[1.02]' : 'ring-0'}`}>
+      
+      {/* Dynamic Island */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-7 bg-black rounded-full z-20" />
+      
+      {/* Screen Content */}
+      <div 
+        className="h-full w-full rounded-[2.8rem] overflow-hidden flex flex-col relative no-scrollbar overflow-y-auto transition-all duration-700"
+        style={{ 
+          backgroundColor: templates.find(t => t.id === profile?.template_id)?.config?.bg_color || '#FFFFFF',
+          fontFamily: templates.find(t => t.id === profile?.template_id)?.config?.font_family === 'serif' ? 'serif' : 
+                      templates.find(t => t.id === profile?.template_id)?.config?.font_family === 'mono' ? 'monospace' : 'sans-serif'
+        }}
+      >
+        {/* Dynamic Header Banner (Ark.Curate Style) */}
+        {templates.find(t => t.id === profile?.template_id)?.config?.header_style === 'black-banner' && (
+          <div className="absolute top-0 w-full h-32 bg-black animate-in slide-in-from-top duration-500" />
+        )}
+
+        <div className="flex-1 pt-16 px-6 pb-12 flex flex-col items-center relative z-10">
+          {/* Profile Avatar */}
+          <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden mb-5">
+            {profile.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                className="w-full h-full object-cover"
+                alt="avatar"
+              />
+            ) : (
+              <div className="w-full h-full bg-zinc-50" />
+            )}
           </div>
 
-          <div className="relative aspect-[9/19.2] bg-[#0F0F0F] rounded-[3.8rem] p-3 shadow-2xl border-[10px] border-[#1c1c1e]">
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-7 bg-black rounded-full z-20" />
-            <div className="h-full w-full bg-white rounded-[2.8rem] overflow-hidden flex flex-col relative no-scrollbar overflow-y-auto">
-              <div className="flex-1 pt-16 px-6 pb-12 flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden mb-5">
-                  {profile.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      className="w-full h-full object-cover"
-                      alt="avatar"
+          {/* Profile Identity */}
+          <h3 
+            className="font-black text-sm uppercase tracking-tight"
+            style={{ color: templates.find(t => t.id === profile?.template_id)?.config?.text_color || '#18181b' }}
+          >
+            @{profile.c_username || "username"}
+          </h3>
+          <p 
+            className="text-[10px] font-bold text-center mt-2 px-4 uppercase leading-relaxed line-clamp-2 opacity-70"
+            style={{ color: templates.find(t => t.id === profile?.template_id)?.config?.text_color || '#71717a' }}
+          >
+            {profile.bio || "Architecting digital space..."}
+          </p>
+
+          {/* Social Icons */}
+          <div className="flex gap-4 my-6 opacity-80" style={{ color: templates.find(t => t.id === profile?.template_id)?.config?.text_color || '#e4e4e7' }}>
+            <Instagram size={14} className={profile.insta_username ? "opacity-100" : "opacity-30"} />
+            <Phone size={14} className={profile.whatsapp_number ? "opacity-100" : "opacity-30"} />
+            <DollarSign size={14} className={profile.upi_id ? "opacity-100" : "opacity-30"} />
+          </div>
+
+          {/* Links Grid */}
+          <div className="w-full space-y-4">
+            {links.map((link, i) => {
+              const theme = templates.find(t => t.id === profile?.template_id)?.config;
+              
+              if (link.type === "youtube" && getYouTubeID(link.url)) {
+                return (
+                  <div
+                    key={i}
+                    className="w-full overflow-hidden shadow-sm transition-all duration-500"
+                    style={{ 
+                      backgroundColor: theme?.card_bg || '#FFFFFF',
+                      borderRadius: theme?.card_radius || '2rem',
+                      border: theme?.card_border || '1px solid #f4f4f5'
+                    }}
+                  >
+                    <iframe
+                      className="w-full aspect-video"
+                      src={`https://www.youtube.com/embed/${getYouTubeID(link.url)}`}
+                      frameBorder="0"
+                      allowFullScreen
                     />
-                  ) : (
-                    <div className="w-full h-full bg-zinc-50" />
-                  )}
-                </div>
-                <h3 className="font-black text-zinc-900 text-sm uppercase tracking-tight">
-                  @{profile.c_username || "username"}
-                </h3>
-                <p className="text-[10px] text-zinc-400 font-bold text-center mt-2 px-4 uppercase leading-relaxed line-clamp-2">
-                  {profile.bio || "Architecting digital space..."}
-                </p>
+                    <div className="p-4 text-[9px] font-black uppercase text-center" style={{ color: theme?.text_color || '#18181b' }}>
+                      {link.title}
+                    </div>
+                  </div>
+                );
+              }
 
-                <div className="flex gap-4 my-6 text-zinc-200">
-                  <Instagram
-                    size={14}
-                    className={profile.insta_username ? "text-zinc-900" : ""}
-                  />
-                  <Phone
-                    size={14}
-                    className={profile.whatsapp_number ? "text-zinc-900" : ""}
-                  />
-                  <DollarSign
-                    size={14}
-                    className={profile.upi_id ? "text-zinc-900" : ""}
-                  />
+              return (
+                <div
+                  key={i}
+                  className="w-full p-4 text-[10px] font-black uppercase tracking-widest shadow-sm text-center active:scale-95 transition-all duration-500"
+                  style={{ 
+                    backgroundColor: theme?.card_bg || '#FFFFFF',
+                    borderRadius: theme?.card_radius || '1rem',
+                    color: theme?.text_color || '#18181b',
+                    border: theme?.card_border || '1px solid #f4f4f5'
+                  }}
+                >
+                  {link.title || "Untitled"}
                 </div>
-
-                <div className="w-full space-y-4">
-                  {links.map((link, i) => {
-                    // YOUTUBE PREVIEW
-                    if (link.type === "youtube" && getYouTubeID(link.url)) {
-                      return (
-                        <div
-                          key={i}
-                          className="w-full overflow-hidden rounded-[2rem] border border-zinc-100 shadow-sm bg-white"
-                        >
-                          <iframe
-                            className="w-full aspect-video"
-                            src={`https://www.youtube.com/embed/${getYouTubeID(
-                              link.url
-                            )}`}
-                            frameBorder="0"
-                            allowFullScreen
-                          />
-                          <div className="p-4 text-[9px] font-black uppercase text-zinc-900 text-center">
-                            {link.title}
-                          </div>
-                        </div>
-                      );
-                    }
-                    // INSTAGRAM FEED PREVIEW
-                    if (link.type === "social") {
-                      return (
-                        <div
-                          key={i}
-                          className="w-full bg-white rounded-[2rem] border border-zinc-100 overflow-hidden shadow-sm"
-                        >
-                          <div className="flex items-center justify-between p-4 border-b border-zinc-50">
-                            <div className="flex items-center gap-2">
-                              <div className="p-1.5 bg-pink-50 rounded-full">
-                                <Instagram
-                                  size={12}
-                                  className="text-pink-600"
-                                />
-                              </div>
-                              <span className="text-[10px] font-black uppercase tracking-wide text-zinc-700">
-                                @{link.url || "user"}
-                              </span>
-                            </div>
-                            <span className="px-3 py-1 bg-zinc-900 text-white rounded-full text-[8px] font-bold uppercase">
-                              Follow
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-3 gap-0.5 bg-zinc-100 border-b border-zinc-100">
-                            {[1, 2, 3, 4, 5, 6].map((_, idx) => (
-                              <div
-                                key={idx}
-                                className="aspect-square bg-zinc-50 relative overflow-hidden group cursor-pointer"
-                              >
-                                <div className="absolute inset-0 bg-zinc-200 animate-pulse opacity-20" />
-                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 text-white">
-                                  <Instagram size={16} />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    }
-                    // SHOP ITEM PREVIEW
-                    if (link.type === "shop") {
-                      const product = products.find((p) => p.id === link.url);
-                      return (
-                        <div
-                          key={i}
-                          className="w-full p-2 bg-zinc-50 rounded-[2rem] border border-zinc-100 flex items-center gap-4 group"
-                        >
-                          <div className="w-16 h-16 bg-white rounded-[1.5rem] flex items-center justify-center shadow-sm text-zinc-300 overflow-hidden">
-                            {product?.image_url ? (
-                              <img
-                                src={product.image_url}
-                                className="w-full h-full object-cover"
-                                alt="prod"
-                              />
-                            ) : (
-                              <ShoppingBag size={20} />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-[10px] font-black uppercase tracking-tight text-zinc-900">
-                              {product?.name || link.title || "Product"}
-                            </div>
-                            <div className="text-[8px] font-bold text-purple-600 uppercase mt-1">
-                              {product?.product_type === "digital"
-                                ? "Download"
-                                : "Buy Now"}{" "}
-                              — ${product?.price || "0.00"}
-                            </div>
-                          </div>
-                          <div className="pr-4">
-                            <ChevronRight size={14} className="text-zinc-300" />
-                          </div>
-                        </div>
-                      );
-                    }
-                    if (link.type === "divider")
-                      return (
-                        <div
-                          key={i}
-                          className="w-full h-[1px] bg-zinc-100 my-4"
-                        />
-                      );
-
-                    // DEFAULT BUTTON
-                    return (
-                      <div
-                        key={i}
-                        className="w-full p-4 rounded-2xl border border-zinc-100 bg-white text-[10px] font-black uppercase tracking-widest text-zinc-900 shadow-sm text-center active:scale-95 transition-all"
-                      >
-                        {link.title || "Untitled"}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
-        <div className="absolute bottom-10 flex items-center gap-3 bg-zinc-900 px-6 py-3 rounded-full text-white shadow-2xl">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[9px] font-black uppercase tracking-widest">
-            Live Architectural Preview
-          </span>
-        </div>
-      </aside>
+      </div>
+    </div>
+  </div>
+
+  {/* Status Badge with Live Indicator */}
+  <div className={`absolute bottom-10 flex items-center gap-3 px-6 py-3 rounded-full text-white shadow-2xl transition-all duration-500 ${isDeploying ? 'bg-purple-600 scale-110' : 'bg-zinc-900'}`}>
+    <div className={`w-2 h-2 rounded-full ${isDeploying ? 'bg-white animate-ping' : 'bg-green-500 animate-pulse'}`} />
+    <span className="text-[9px] font-black uppercase tracking-widest">
+      {isDeploying ? 'Syncing Architecture...' : 'Live Architectural Preview'}
+    </span>
+  </div>
+</aside>
       {showSubmitModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-6">
-          <div className="bg-white w-full max-w-lg rounded-[3rem] p-10 space-y-8 animate-in zoom-in-95 duration-300">
-            <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter">
-                New Design Blueprint
-              </h3>
-              <button
-                onClick={() => setShowSubmitModal(false)}
-                className="text-zinc-400 hover:text-black"
-              >
-                <Plus className="rotate-45" />
-              </button>
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="bg-white w-full max-w-4xl rounded-[3rem] overflow-hidden flex h-[80vh] shadow-2xl">
+      
+      {/* LEFT: Controls */}
+      <div className="w-1/2 p-10 overflow-y-auto border-r border-zinc-100">
+        <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-6">Engineer New Theme</h3>
+        <form onSubmit={handleSubmitTemplate} className="space-y-6">
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Theme Name</label>
+            <input 
+              type="text" 
+              required
+              className="w-full mt-2 p-4 bg-zinc-50 rounded-2xl border-none focus:ring-2 focus:ring-purple-500"
+              onChange={(e) => setNewTemplate({...newTemplate, name: e.target.value})}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">BG Color</label>
+              <input 
+                type="color" 
+                className="w-full h-12 mt-2 rounded-xl cursor-pointer"
+                value={newTemplate.config.bg_color}
+                onChange={(e) => setNewTemplate({...newTemplate, config: {...newTemplate.config, bg_color: e.target.value}})}
+              />
             </div>
-
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                  Theme Name
-                </label>
-                <input
-                  onChange={(e) =>
-                    setNewTemplate({ ...newTemplate, name: e.target.value })
-                  }
-                  className="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl font-bold"
-                  placeholder="e.g. Cyberpunk Neon"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                    Background
-                  </label>
-                  <input
-                    type="color"
-                    onChange={(e) =>
-                      setNewTemplate({
-                        ...newTemplate,
-                        config: {
-                          ...newTemplate.config,
-                          bg_color: e.target.value,
-                        },
-                      })
-                    }
-                    className="w-full h-12 rounded-xl cursor-pointer"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                    Text Color
-                  </label>
-                  <input
-                    type="color"
-                    onChange={(e) =>
-                      setNewTemplate({
-                        ...newTemplate,
-                        config: {
-                          ...newTemplate.config,
-                          text_color: e.target.value,
-                        },
-                      })
-                    }
-                    className="w-full h-12 rounded-xl cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                  Marketplace Price ($)
-                </label>
-                <input
-                  type="number"
-                  onChange={(e) =>
-                    setNewTemplate({
-                      ...newTemplate,
-                      price: parseFloat(e.target.value),
-                    })
-                  }
-                  className="w-full p-4 bg-zinc-50 border border-zinc-100 rounded-2xl font-bold"
-                  placeholder="0.00 (Free)"
-                />
-              </div>
+            <div>
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Card Color</label>
+              <input 
+                type="color" 
+                className="w-full h-12 mt-2 rounded-xl cursor-pointer"
+                value={newTemplate.config.card_bg}
+                onChange={(e) => setNewTemplate({...newTemplate, config: {...newTemplate.config, card_bg: e.target.value}})}
+              />
             </div>
+          </div>
 
-            <button
-              onClick={handleSubmitTemplate}
-              className="w-full py-5 bg-purple-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-black transition-all shadow-xl"
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Button Corner Radius</label>
+            <select 
+              className="w-full mt-2 p-4 bg-zinc-50 rounded-2xl border-none"
+              onChange={(e) => setNewTemplate({...newTemplate, config: {...newTemplate.config, card_radius: e.target.value}})}
             >
-              Submit to Marketplace
-            </button>
+              <option value="rounded-none">Sharp (0px)</option>
+              <option value="rounded-xl">Soft (12px)</option>
+              <option value="rounded-[2rem]">Hyper (32px)</option>
+              <option value="rounded-full">Pill</option>
+            </select>
+          </div>
+
+          <div className="flex gap-4 pt-6">
+            <button type="submit" className="flex-1 py-4 bg-zinc-900 text-white rounded-2xl font-black uppercase text-xs hover:bg-purple-600 transition-all">Submit for Review</button>
+            <button type="button" onClick={() => setShowSubmitModal(false)} className="px-8 py-4 bg-zinc-100 rounded-2xl font-black uppercase text-xs">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      {/* RIGHT: Live Preview */}
+      <div className="w-1/2 bg-zinc-100 flex items-center justify-center p-12">
+        <div 
+          className="w-full aspect-[9/16] shadow-2xl overflow-hidden flex flex-col items-center p-8 transition-all duration-500"
+          style={{ 
+            backgroundColor: newTemplate.config.bg_color,
+            borderRadius: '3rem'
+          }}
+        >
+          <div className="w-16 h-16 rounded-full bg-zinc-400/20 mb-4" />
+          <div className="w-32 h-3 bg-zinc-400/20 rounded-full mb-10" />
+          <div className="w-full space-y-4">
+            <div className={`h-12 w-full shadow-sm ${newTemplate.config.card_radius}`} style={{ backgroundColor: newTemplate.config.card_bg }} />
+            <div className={`h-12 w-full shadow-sm ${newTemplate.config.card_radius}`} style={{ backgroundColor: newTemplate.config.card_bg }} />
+            <div className={`h-12 w-full shadow-sm ${newTemplate.config.card_radius}`} style={{ backgroundColor: newTemplate.config.card_bg }} />
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
