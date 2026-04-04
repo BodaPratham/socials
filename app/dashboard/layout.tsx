@@ -72,13 +72,11 @@ export default async function DashboardLayout({
 
                  const { error } = await supabase
                    .from('profiles')
-                   .update({ c_username: cleanHandle })
-                   .eq('id', user.id)
+                   .upsert({ id: user.id, c_username: cleanHandle })
                    
                  if (!error) {
                    // This is the key: clear the cache for the dashboard path
                    revalidatePath('/dashboard', 'layout')
-                   redirect('/dashboard')
                  }
                }}
                className="w-full bg-white text-black py-5 rounded-[1.5rem] font-black uppercase text-xs tracking-[0.2em] hover:bg-[#A855F7] hover:text-white transition-all shadow-xl active:scale-[0.98]"
