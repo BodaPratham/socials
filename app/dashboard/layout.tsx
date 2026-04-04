@@ -74,9 +74,12 @@ export default async function DashboardLayout({
                    .from('profiles')
                    .upsert({ id: user.id, c_username: cleanHandle })
                    
-                 if (!error) {
+                 if (error) {
+                   console.error("UPSERT ERROR:", error.message);
+                 } else {
                    // This is the key: clear the cache for the dashboard path
                    revalidatePath('/dashboard', 'layout')
+                   redirect('/dashboard?setup=complete')
                  }
                }}
                className="w-full bg-white text-black py-5 rounded-[1.5rem] font-black uppercase text-xs tracking-[0.2em] hover:bg-[#A855F7] hover:text-white transition-all shadow-xl active:scale-[0.98]"
