@@ -1,7 +1,19 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Routes that require auth processing (dashboard, settings, etc.)
+const PROTECTED_ROUTES = ['/dashboard', '/settings', '/api/']
+
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Skip auth entirely for public routes (profile pages, landing, checkout, login, etc.)
+  const isProtected = PROTECTED_ROUTES.some(route => pathname.startsWith(route))
+  if (!isProtected) {
+    return NextResponse.next()
+  }
+
+  // Only run Supabase auth session refresh for protected routes
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(

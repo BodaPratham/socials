@@ -252,6 +252,52 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
                  );
               }
 
+              // SHOP BLOCK (Inline Product Card - Commerce Style)
+              if (link.type === 'shop') {
+                const product = products?.find((p: any) => p.id === link.url) 
+                  || products?.find((p: any) => p.name === link.title)
+                  || (products?.length === 1 ? products[0] : null);
+                
+                const displayName = product?.name || link.title || 'Product';
+                const displayPrice = product?.price || '—';
+                const displayImage = product?.image_url;
+                const displayDesc = product?.description;
+                const checkoutUrl = product 
+                  ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
+                  : '#';
+
+                return (
+                  <a key={link.id} href={checkoutUrl} onClick={() => trackClick(link.id)} className="group block space-y-8">
+                    <div className={`aspect-[4/5] bg-current/5 overflow-hidden relative shadow-2xl transition-transform duration-700 hover:-translate-y-2 ${getButtonShapeClasses()}`}>
+                      {displayImage ? (
+                        <img src={displayImage} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={displayName} />
+                      ) : <ShoppingBag size={48} className="absolute inset-0 m-auto opacity-10" />}
+                      <div className="absolute top-6 left-6 p-4 px-6 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-white/20">
+                        <span className="text-sm font-black tracking-tight" style={{ color: btnColor }}>₹{displayPrice}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-end px-2">
+                      <div className="space-y-1 flex-1 min-w-0 pr-4">
+                        <h4 className="text-xl font-black tracking-tighter uppercase leading-none truncate">{displayName}</h4>
+                        <p className="text-[10px] font-black opacity-20 uppercase tracking-[0.3em] truncate">{displayDesc || 'View Details'}</p>
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-xl group-hover:rotate-[360deg] transition-transform duration-1000">
+                        <ArrowRight size={18} />
+                      </div>
+                    </div>
+                  </a>
+                );
+              }
+
+              // TEXT BLOCK
+              if (link.type === 'text') {
+                return (
+                  <div key={link.id} className="px-2 py-4">
+                    <p className="text-sm font-bold leading-relaxed opacity-60 whitespace-pre-line italic">{link.url}</p>
+                  </div>
+                );
+              }
+
               return (
                  <a 
                     key={link.id} 

@@ -311,7 +311,67 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
                 );
               }
 
-              // 6. DEFAULT CTA LINK
+              // 6. SHOP BLOCK (Inline Product Card)
+              if (link.type === 'shop') {
+                // Try multiple matching strategies: by ID, then by name
+                const product = products?.find((p: any) => p.id === link.url) 
+                  || products?.find((p: any) => p.name === link.title)
+                  || (products?.length === 1 ? products[0] : null);
+                
+                const displayName = product?.name || link.title || 'Product';
+                const displayPrice = product?.price || '—';
+                const displayImage = product?.image_url;
+                const displayDesc = product?.description;
+                const checkoutUrl = product 
+                  ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
+                  : '#';
+
+                return (
+                  <a 
+                    key={link.id}
+                    href={checkoutUrl}
+                    onClick={() => trackClick(link.id)}
+                    className={`w-full overflow-hidden group transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] border ${getButtonShapeClasses()}`}
+                    style={{ 
+                      backgroundColor: buttonStyle === 'Glass' ? 'rgba(255,255,255,0.05)' : `${bgColor}08`,
+                      borderColor: `${btnColor}22`
+                    }}
+                  >
+                    <div className="aspect-[16/10] relative overflow-hidden bg-zinc-100">
+                      {displayImage ? (
+                        <img src={displayImage} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={displayName} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ShoppingBag size={40} className="opacity-10" />
+                        </div>
+                      )}
+                      <div className="absolute top-3 right-3 px-3 py-1.5 bg-white/90 backdrop-blur-md rounded-full shadow-xl border border-black/5">
+                        <span className="text-[11px] font-black text-purple-600">₹{displayPrice}</span>
+                      </div>
+                    </div>
+                    <div className="p-5 flex items-center justify-between">
+                      <div className="flex-1 min-w-0 pr-4">
+                        <h4 className="text-[13px] font-black uppercase tracking-tight truncate">{displayName}</h4>
+                        {displayDesc && (
+                          <p className="text-[10px] font-bold opacity-40 mt-1 truncate">{displayDesc}</p>
+                        )}
+                      </div>
+                      <span className="text-[8px] font-black uppercase tracking-widest opacity-30 shrink-0">View Details</span>
+                    </div>
+                  </a>
+                );
+              }
+
+              // 7. TEXT BLOCK
+              if (link.type === 'text') {
+                return (
+                  <div key={link.id} className="px-2 py-4">
+                    <p className="text-sm font-medium leading-relaxed opacity-70 whitespace-pre-line">{link.url}</p>
+                  </div>
+                );
+              }
+
+              // 8. DEFAULT CTA LINK
               let icon = getSocialIcon(link, 22);
               if (link.type === 'contact') icon = <Mail size={22} />;
 

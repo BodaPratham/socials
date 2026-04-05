@@ -250,6 +250,57 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
                  );
               }
 
+              // SHOP BLOCK (Inline Product Card - Café Style)
+              if (link.type === 'shop') {
+                const product = products?.find((p: any) => p.id === link.url) 
+                  || products?.find((p: any) => p.name === link.title)
+                  || (products?.length === 1 ? products[0] : null);
+                
+                const displayName = product?.name || link.title || 'Product';
+                const displayPrice = product?.price || '—';
+                const displayImage = product?.image_url;
+                const displayDesc = product?.description;
+                const checkoutUrl = product 
+                  ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
+                  : '#';
+
+                return (
+                  <a 
+                    key={link.id}
+                    href={checkoutUrl}
+                    onClick={() => trackClick(link.id)}
+                    className="group flex gap-6 items-start text-left"
+                  >
+                    <div className="w-24 h-24 shrink-0 rounded-3xl overflow-hidden bg-stone-100 shadow-lg relative group-hover:scale-105 transition-transform duration-500">
+                      {displayImage ? (
+                        <img src={displayImage} className="w-full h-full object-cover" alt={displayName} />
+                      ) : <ShoppingBag size={24} className="absolute inset-0 m-auto opacity-10" />}
+                    </div>
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <div className="flex justify-between items-end gap-4 overflow-hidden">
+                        <h4 className="text-xl font-black uppercase italic truncate tracking-tight">{displayName}</h4>
+                        <div className="h-[1px] flex-1 mb-1 border-b border-dotted border-current opacity-20" />
+                        <span className="text-xl font-bold tracking-tighter opacity-80 whitespace-nowrap">₹{displayPrice}</span>
+                      </div>
+                      <p className="text-xs font-bold opacity-40 leading-relaxed italic line-clamp-2">{displayDesc || "A curated selection from our collection."}</p>
+                      <div className="flex items-center gap-1.5 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[9px] font-black uppercase tracking-widest">View Details</span>
+                        <ArrowRight size={12} />
+                      </div>
+                    </div>
+                  </a>
+                );
+              }
+
+              // TEXT BLOCK
+              if (link.type === 'text') {
+                return (
+                  <div key={link.id} className="px-2 py-4">
+                    <p className="text-sm font-bold italic leading-relaxed opacity-50 whitespace-pre-line">{link.url}</p>
+                  </div>
+                );
+              }
+
               // DEFAULT LINK
               return (
                  <a 

@@ -244,6 +244,65 @@ export default function CreatorPro({ profile, links = [], products = [] }: any) 
                  );
               }
 
+              // SHOP BLOCK (Inline Product Card)
+              if (link.type === 'shop') {
+                const product = products?.find((p: any) => p.id === link.url) 
+                  || products?.find((p: any) => p.name === link.title)
+                  || (products?.length === 1 ? products[0] : null);
+                
+                const displayName = product?.name || link.title || 'Product';
+                const displayPrice = product?.price || '—';
+                const displayImage = product?.image_url;
+                const displayDesc = product?.description;
+                const checkoutUrl = product 
+                  ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
+                  : '#';
+
+                return (
+                  <a 
+                    key={link.id}
+                    href={checkoutUrl}
+                    onClick={() => trackClick(link.id)}
+                    className={`group block relative overflow-hidden border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] ${getButtonShapeClasses()}`}
+                    style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+                  >
+                    <div className="aspect-[16/10] relative overflow-hidden bg-zinc-900">
+                      {displayImage ? (
+                        <img src={displayImage} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000" alt={displayName} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ShoppingBag size={40} className="opacity-10" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                      <div className="absolute top-4 right-4 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full shadow-xl">
+                        <span className="text-[11px] font-black text-black">₹{displayPrice}</span>
+                      </div>
+                    </div>
+                    <div className="p-6 flex items-center justify-between">
+                      <div className="flex-1 min-w-0 pr-4">
+                        <h4 className="text-lg font-black uppercase tracking-tighter italic truncate">{displayName}</h4>
+                        {displayDesc && (
+                          <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-20 mt-1 truncate">{displayDesc}</p>
+                        )}
+                      </div>
+                      <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center opacity-20 border border-white/5 group-hover:opacity-100 transition-all">
+                        <ArrowRight size={20} />
+                      </div>
+                    </div>
+                  </a>
+                );
+              }
+
+              // TEXT BLOCK
+              if (link.type === 'text') {
+                return (
+                  <div key={link.id} className="px-2 py-4">
+                    <p className="text-sm font-bold italic leading-relaxed opacity-60 whitespace-pre-line">{link.url}</p>
+                  </div>
+                );
+              }
+
               return (
                  <a 
                     key={link.id} 

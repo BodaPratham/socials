@@ -222,6 +222,64 @@ export default function Dhurndhar({ profile, links = [], products = [] }: any) {
                  );
               }
 
+              // SHOP BLOCK (Inline Product Card - Brutalist Style)
+              if (link.type === 'shop') {
+                // Try multiple matching strategies: by ID, then by name
+                const product = products?.find((p: any) => p.id === link.url) 
+                  || products?.find((p: any) => p.name === link.title)
+                  || (products?.length === 1 ? products[0] : null);
+                
+                const displayName = product?.name || link.title || 'Product';
+                const displayPrice = product?.price || '—';
+                const displayImage = product?.image_url;
+                const displayDesc = product?.description;
+                const checkoutUrl = product 
+                  ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
+                  : '#';
+
+                return (
+                  <a 
+                    key={link.id}
+                    href={checkoutUrl}
+                    onClick={() => trackClick(link.id)}
+                    className={`group block relative overflow-hidden border-[6px] border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all bg-white ${getButtonShapeClasses()}`}
+                  >
+                    <div className="aspect-[16/10] relative overflow-hidden bg-zinc-100">
+                      {displayImage ? (
+                        <img src={displayImage} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={displayName} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ShoppingBag size={48} className="opacity-10" />
+                        </div>
+                      )}
+                      <div className="absolute top-4 left-4 p-3 px-5 bg-black text-white text-xs font-black tracking-widest skew-x-[-10deg]">
+                        ₹{displayPrice}
+                      </div>
+                    </div>
+                    <div className="p-6 flex items-center justify-between">
+                      <div className="flex-1 min-w-0 pr-4">
+                        <h4 className="text-lg font-black uppercase tracking-tighter italic truncate">{displayName}</h4>
+                        {displayDesc && (
+                          <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mt-1 truncate">{displayDesc}</p>
+                        )}
+                      </div>
+                      <div className="w-12 h-12 bg-black text-white flex items-center justify-center group-hover:rotate-[360deg] transition-transform duration-700">
+                        <ArrowRight size={22} />
+                      </div>
+                    </div>
+                  </a>
+                );
+              }
+
+              // TEXT BLOCK
+              if (link.type === 'text') {
+                return (
+                  <div key={link.id} className="px-2 py-4">
+                    <p className="text-sm font-black uppercase italic leading-relaxed opacity-60 whitespace-pre-line">{link.url}</p>
+                  </div>
+                );
+              }
+
               return (
                  <a 
                     key={link.id} 
