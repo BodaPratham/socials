@@ -1,4 +1,5 @@
 SOCIALS ⚡
+
 Elevate Your Digital Profile.
 SOCIALS is a high-performance, premium digital identity platform. It is engineered for creators, designers, and entrepreneurs who demand a digital presence that reflects the quality of their work. Unlike generic link aggregators, SOCIALS provides editorial-grade layouts, integrated commerce, and a "Billionaire-Master" aesthetic out of the box.
 
