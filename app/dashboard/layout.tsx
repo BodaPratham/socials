@@ -46,20 +46,7 @@ export default async function DashboardLayout({
           <h1 className="text-3xl font-black tracking-tighter text-white uppercase italic mb-3">Claim Your Handle</h1>
           <p className="text-zinc-500 text-[11px] mb-10 uppercase tracking-[0.3em] font-bold opacity-70">Create your unique bridge link</p>
           
-          <form className="space-y-5">
-             <div className="relative group">
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-500 font-bold text-sm tracking-tight">socials.me/</span>
-                <input 
-                  name="c_username" 
-                  required 
-                  autoFocus
-                  className="w-full bg-black/40 border border-white/10 p-5 pl-[110px] rounded-[1.5rem] text-white font-bold focus:border-[#A855F7] outline-none transition-all placeholder:text-zinc-700"
-                  placeholder="username"
-                />
-             </div>
-             
-             <button 
-               formAction={async (formData: FormData) => {
+          <form action={async (formData: FormData) => {
                  'use server'
                  const supabase = await createClient()
                  const { data: { user } } = await supabase.auth.getUser()
@@ -75,14 +62,30 @@ export default async function DashboardLayout({
                    .update({ c_username: cleanHandle })
                    .eq('id', user.id)
                    
+                 console.log("SERVER ACTION TRIGGERED FOR:", cleanHandle);
+
                  if (error) {
-                   console.error("UPSERT ERROR:", error.message);
+                   console.error("UPDATE ERROR:", error.message);
                  } else {
-                   // This is the key: clear the cache for the dashboard path
-                   revalidatePath('/dashboard', 'layout')
-                   redirect('/dashboard?setup=complete')
+                   console.log("UPDATE SUCCESS! Refreshing path...");
+                   // Using the root '/' with 'layout' forces the entire app tree to re-fetch
+                   revalidatePath('/', 'layout');
+                   redirect('/dashboard?refresh=' + Date.now());
                  }
-               }}
+               }} className="space-y-5">
+             <div className="relative group">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-500 font-bold text-sm tracking-tight">socials.me/</span>
+                <input 
+                  name="c_username" 
+                  required 
+                  autoFocus
+                  className="w-full bg-black/40 border border-white/10 p-5 pl-[110px] rounded-[1.5rem] text-white font-bold focus:border-[#A855F7] outline-none transition-all placeholder:text-zinc-700"
+                  placeholder="username"
+                />
+             </div>
+             
+             <button 
+               type="submit"
                className="w-full bg-white text-black py-5 rounded-[1.5rem] font-black uppercase text-xs tracking-[0.2em] hover:bg-[#A855F7] hover:text-white transition-all shadow-xl active:scale-[0.98]"
              >
                Launch My Bridge
