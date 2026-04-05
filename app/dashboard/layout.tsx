@@ -72,7 +72,8 @@ export default async function DashboardLayout({
 
                  const { error } = await supabase
                    .from('profiles')
-                   .upsert({ id: user.id, c_username: cleanHandle })
+                   .update({ c_username: cleanHandle })
+                   .eq('id', user.id)
                    
                  if (error) {
                    console.error("UPSERT ERROR:", error.message);
