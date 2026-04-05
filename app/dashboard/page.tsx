@@ -118,7 +118,6 @@ const productImgRef = useRef<HTMLInputElement>(null);
 const digitalFileRef = useRef<HTMLInputElement>(null);
   
  
-  const [selectedTemplateId, setSelectedTemplateId] = useState("midnight");
   const [isDeploying, setIsDeploying] = useState(false);
   
   // UI States
@@ -215,13 +214,10 @@ useEffect(() => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // 1. Update profile
+      // 1. Update profile - spread without overriding template_id with invalid 'midnight' state
       const { error: pErr } = await supabase
         .from("profiles")
-        .update({
-          ...profile,
-          template_id: selectedTemplateId,
-        })
+        .update(profile)
         .eq("id", user.id);
 
       if (pErr) throw pErr;
@@ -229,20 +225,26 @@ useEffect(() => {
       // 2. Save links (Delete and Insert for simplicity and order preservation)
       await supabase.from("links").delete().eq("user_id", user.id);
       
-      const linksToSave = links.map((link: any, index: number) => ({
-        ...link,
-        user_id: user.id,
-        position: index,
-        id: link.id.includes('-') ? link.id : crypto.randomUUID() // Ensure valid UUIDs
-      }));
+      const linksToSave = links.map((link: any, index: number) => {
+        const payload = {
+          ...link,
+          user_id: user.id,
+          position: index,
+        };
+        // Ensure valid UUIDs. If it's a numeric string (from Date.now()), remove it so Postgres creates a fresh UUID
+        if (payload.id && !payload.id.includes('-')) {
+          delete payload.id;
+        }
+        return payload;
+      });
 
       const { error: lErr } = await supabase.from("links").insert(linksToSave);
       if (lErr) throw lErr;
 
       alert("✅ Page Successfully Updated");
-    } catch (err) {
-      console.error(err);
-      alert("Update failed.");
+    } catch (err: any) {
+      console.error("Deploy Error:", err);
+      alert(`Update failed. ${err.message || "Please check console."}`);
     } finally {
       setLoading(false);
     }

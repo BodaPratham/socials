@@ -5,7 +5,7 @@ import {
     DollarSign, Search, HelpCircle, FileText, FileAudio, Video, AlignLeft, FormInput, FileIcon, Minus, MousePointerSquareDashed, Heading, Pencil
   } from "lucide-react";
 import { useState } from "react";
-
+import { createClient } from "@/utils/supabase/client";
 const socialPlatforms = [
   { id: 'email', label: 'Email', icon: <Mail size={14}/> },
   { id: 'newsletter', label: 'Newsletter', icon: <Mail size={14}/> },
@@ -85,6 +85,29 @@ const socialPlatforms = [
   }: any) => {
     const [socialSearch, setSocialSearch] = useState("");
     const [blockSearch, setBlockSearch] = useState("");
+    const [uploadingLinkId, setUploadingLinkId] = useState<string | null>(null);
+    const supabase = createClient();
+    
+    const handleBlockFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, linkId: string, type: string) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploadingLinkId(linkId);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const bucket = type === 'image' ? 'product-images' : 'digital-downloads';
+            const ext = file.name.split('.').pop();
+            const path = `${user?.id}/block-${linkId}.${ext}`;
+            await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+            const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path);
+            
+            setLinks((prevLinks: any[]) => prevLinks.map((l: any) => l.id === linkId ? { ...l, url: publicUrl } : l));
+        } catch (err) {
+            console.error("Upload Error:", err);
+            alert("Upload failed.");
+        } finally {
+            setUploadingLinkId(null);
+        }
+    };
     
     return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -268,15 +291,36 @@ const socialPlatforms = [
                                 )}
                                 
                                 {link.type !== 'title' && link.type !== 'text' && link.type !== 'instagram' && link.type !== 'shop' && (
-                                    <div className="flex items-center gap-3">
-                                        <Link2 size={14} className="opacity-30" />
-                                        <input 
-                                            value={link.url}
-                                            onChange={(e) => setLinks(links.map((l: any) => l.id === link.id ? { ...l, url: e.target.value } : l))}
-                                            placeholder={link.type === 'image' ? "Direct image URL (e.g. .jpg, .png)" : "Target URL"}
-                                            className="w-full bg-transparent border-b p-1 text-sm outline-none placeholder-zinc-700 font-bold"
-                                            style={{ borderColor: panelBorder }}
-                                        />
+                                    <div className="flex items-center gap-3 w-full pr-4">
+                                        <Link2 size={14} className="opacity-30 shrink-0" />
+                                        <div className="flex-1 flex gap-2 items-center">
+                                            <input 
+                                                value={link.url}
+                                                onChange={(e) => setLinks(links.map((l: any) => l.id === link.id ? { ...l, url: e.target.value } : l))}
+                                                placeholder={link.type === 'image' ? "Direct image URL (e.g. .jpg, .png)" : link.type === 'file' ? "Direct file URL (e.g. .pdf)" : "Target URL"}
+                                                className="w-full bg-transparent border-b p-1 text-sm outline-none placeholder-zinc-700 font-bold"
+                                                style={{ borderColor: panelBorder }}
+                                            />
+                                            {(link.type === 'image' || link.type === 'file') && (
+                                                <div className="relative shrink-0 flex">
+                                                    <input
+                                                        type="file"
+                                                        id={`file-upload-${link.id}`}
+                                                        className="hidden"
+                                                        accept={link.type === 'image' ? "image/*" : "*/*"}
+                                                        onChange={(e) => handleBlockFileUpload(e, link.id, link.type)}
+                                                    />
+                                                    <label
+                                                        htmlFor={`file-upload-${link.id}`}
+                                                        className="flex items-center justify-center p-2 rounded-lg bg-zinc-800 text-white cursor-pointer hover:bg-purple-600 transition-all text-[10px] font-black uppercase tracking-widest gap-2"
+                                                        title={`Upload ${link.type}`}
+                                                    >
+                                                        {uploadingLinkId === link.id ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                                                        <span>Upload</span>
+                                                    </label>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
