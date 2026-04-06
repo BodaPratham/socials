@@ -386,7 +386,7 @@ const socialPlatforms = [
                         e.stopPropagation();
                         // Safely add the new social link to the array
                         setLinks([...(links || []), { 
-                          id: Date.now().toString(),
+                          id: crypto.randomUUID(),
                           title: platform.label, 
                           url: "", 
                           type: "social", 
@@ -451,22 +451,22 @@ const socialPlatforms = [
                     <h4 className="font-bold text-[15px] mb-1 text-zinc-900">Buttons</h4>
                     <p className="text-xs text-zinc-500 mb-4">Clickable buttons that direct visitors to links, emails, and files.</p>
                     <div className="grid grid-cols-2 gap-4">
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Header", url: "", type: "standard" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Header", url: "", type: "standard" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-600"><Link2 size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">URL Button</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Link to any website, social media profile, or online resource.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Email", url: "mailto:", type: "contact" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Email", url: "mailto:", type: "contact" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-600"><Mail size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Email Button</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Opens visitors' email app with your address pre-filled.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Download", url: "", type: "file" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Download", url: "", type: "file" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-600"><FileText size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">File Button</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Share downloadable files like PDFs, resumes, or press kits.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Image", url: "", type: "image" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Image", url: "", type: "image" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-600"><ImageIcon size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Image Button</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Showcase a photo or graphic in a beautiful full-screen lightbox.</span>
@@ -479,12 +479,12 @@ const socialPlatforms = [
                     <h4 className="font-bold text-[15px] mb-1 text-zinc-900">Media</h4>
                     <p className="text-xs text-zinc-500 mb-4">Embed audio and video from popular platforms</p>
                     <div className="grid grid-cols-2 gap-4">
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Audio", url: "", type: "audio" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Audio", url: "", type: "audio" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600"><Play size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Audio</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Embed music or podcasts from Spotify, Apple Music, and more.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Video", url: "", type: "youtube" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Video", url: "", type: "youtube" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600"><Youtube size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Video</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Embed videos from YouTube, Vimeo, TikTok, and others.</span>
@@ -497,24 +497,24 @@ const socialPlatforms = [
                     <h4 className="font-bold text-[15px] mb-1 text-zinc-900">Content</h4>
                     <p className="text-xs text-zinc-500 mb-4">Add text, forms, and other content to your profile</p>
                     <div className="grid grid-cols-2 gap-4">
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Text", url: "", type: "text" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Text", url: "", type: "text" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600"><Type size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Text</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Add rich text for announcements, bios, or any written content.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Subscribe", url: "", type: "form" }]); setShowAddMenu(false); }} className="p-4 border rounded-xl hover:opacity-80 transition-all flex flex-col items-center text-center gap-2" style={{ borderColor: panelBorder }}>
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Subscribe", url: "", type: "form" }]); setShowAddMenu(false); }} className="p-4 border rounded-xl hover:opacity-80 transition-all flex flex-col items-center text-center gap-2" style={{ borderColor: panelBorder }}>
                             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><FormInput size={18} /></div>
                             <span className="font-bold text-sm text-inherit">Form</span>
                             <span className="text-[10px] opacity-60 leading-tight">Build custom forms to collect sign-ups, RSVPs, or feedback.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Product", url: "", type: "shop" }]); setShowAddMenu(false); }} className="p-4 border rounded-xl hover:opacity-80 transition-all flex flex-col items-center text-center gap-2" style={{ borderColor: panelBorder }}>
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Product", url: "", type: "shop" }]); setShowAddMenu(false); }} className="p-4 border rounded-xl hover:opacity-80 transition-all flex flex-col items-center text-center gap-2" style={{ borderColor: panelBorder }}>
                             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: dashBtn, color: dashBtnText }}><ShoppingBag size={18} /></div>
                             <span className="font-bold text-sm text-inherit">Product</span>
                             <span className="text-[10px] opacity-60 leading-tight">Feature a digital or physical product directly.</span>
                         </button>
 
                         {profile.template_id === 'cafe-restaurant' && (
-                            <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Menu Item", url: "", type: "menu_item" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                            <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Menu Item", url: "", type: "menu_item" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                                 <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-600"><Plus size={18} /></div>
                                 <span className="font-bold text-sm text-zinc-800">Menu Block</span>
                                 <span className="text-[10px] text-zinc-500 leading-tight">Quick shortcut to add menu items to your cafe.</span>
@@ -522,7 +522,7 @@ const socialPlatforms = [
                         )}
 
                         {profile.template_id === 'brand-commerce' && (
-                            <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Gallery Item", url: "", type: "gallery_item" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                            <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Gallery Item", url: "", type: "gallery_item" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                                 <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-600"><ImageIcon size={18} /></div>
                                 <span className="font-bold text-sm text-zinc-800">Gallery Block</span>
                                 <span className="text-[10px] text-zinc-500 leading-tight">Quick shortcut to add products to your gallery.</span>
@@ -536,12 +536,12 @@ const socialPlatforms = [
                     <h4 className="font-bold text-[15px] mb-1 text-zinc-900">Engagement</h4>
                     <p className="text-xs text-zinc-500 mb-4">Grow your audience and connect with visitors</p>
                     <div className="grid grid-cols-2 gap-4">
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Instagram Post", url: "", type: "instagram" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Instagram Post", url: "", type: "instagram" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-pink-50 rounded-full flex items-center justify-center text-pink-600"><Instagram size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Instagram Sync</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Display your latest Instagram posts automatically.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Tip Jar", url: "", type: "tip" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Tip Jar", url: "", type: "tip" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-pink-50 rounded-full flex items-center justify-center text-pink-600"><Heart size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Donate</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Add donation buttons for PayPal, Venmo, and other platforms.</span>
@@ -554,7 +554,7 @@ const socialPlatforms = [
                     <h4 className="font-bold text-[15px] mb-1 text-zinc-900">Layout</h4>
                     <p className="text-xs text-zinc-500 mb-4">Organize and structure your profile</p>
                     <div className="grid grid-cols-2 gap-4">
-                        <button onClick={() => { setLinks([...(links || []), { id: Date.now().toString(), title: "Title", url: "", type: "title" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Title", url: "", type: "title" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
                             <div className="w-10 h-10 bg-amber-50 rounded-full flex items-center justify-center text-amber-600"><Heading size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Title</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Add a title before you start a new section.</span>

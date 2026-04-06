@@ -45,7 +45,7 @@ export default function ShopTab({
           onClick={() => setProducts([
             ...products, 
             { 
-              id: Date.now().toString(), 
+              id: crypto.randomUUID(), 
               name: "New Product", 
               price: "0.00", 
               description: "",
