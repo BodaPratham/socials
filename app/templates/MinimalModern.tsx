@@ -322,14 +322,16 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
                 const displayPrice = product?.price || '—';
                 const displayImage = product?.image_url;
                 const displayDesc = product?.description;
-                const checkoutUrl = product 
+                const checkoutUrl = product?.destination_url || (product 
                   ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
-                  : '#';
+                  : '#');
 
                 return (
                   <a 
                     key={link.id}
                     href={checkoutUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     onClick={() => trackClick(link.id)}
                     className={`w-full overflow-hidden group transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] border ${getButtonShapeClasses()}`}
                     style={{ 
@@ -411,13 +413,15 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
                 <div className="h-px w-full bg-current opacity-10" />
              </div>
              <div className="grid grid-cols-2 gap-4">
-               {products.map((p: any) => (
-                 <a 
-                   key={p.id}
-                   href={`/${profile?.c_username}/checkout?type=product&id=${p.id}`}
-                   className={`p-4 bg-white/5 border border-white/10 group transition-all duration-700 hover:shadow-2xl hover:-translate-y-1 ${getButtonShapeClasses()}`}
-                   style={{ backgroundColor: buttonStyle === 'Glass' ? 'rgba(255,255,255,0.05)' : `${bgColor}08` }}
-                 >
+                {products.map((p: any) => (
+                  <a 
+                    key={p.id}
+                    href={p.destination_url || `/${profile?.c_username}/checkout?type=product&id=${p.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`p-4 bg-white/5 border border-white/10 group transition-all duration-700 hover:shadow-2xl hover:-translate-y-1 ${getButtonShapeClasses()}`}
+                    style={{ backgroundColor: buttonStyle === 'Glass' ? 'rgba(255,255,255,0.05)' : `${bgColor}08` }}
+                  >
                     <div className="aspect-square relative overflow-hidden mb-4 rounded-2xl bg-zinc-100 shadow-inner">
                        {p.image_url ? (
                          <img src={p.image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={p.name} />

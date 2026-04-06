@@ -159,7 +159,10 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
                        {items.map((p: any) => (
                           <a 
                             key={p.id} 
-                            href={`/${profile.c_username}/checkout?type=product&id=${p.id}`}
+                                                         href={p.destination_url || `/${profile.c_username}/checkout?type=product&id=${p.id}`}
+                             target="_blank"
+                             rel="noreferrer"
+
                             className="group flex gap-6 items-start text-left"
                           >
                              <div className="w-24 h-24 shrink-0 rounded-3xl overflow-hidden bg-stone-100 shadow-lg relative group-hover:scale-105 transition-transform duration-500">
@@ -260,14 +263,16 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
                 const displayPrice = product?.price || '—';
                 const displayImage = product?.image_url;
                 const displayDesc = product?.description;
-                const checkoutUrl = product 
+                const checkoutUrl = product?.destination_url || (product 
                   ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
-                  : '#';
+                  : '#');
 
                 return (
                   <a 
                     key={link.id}
                     href={checkoutUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     onClick={() => trackClick(link.id)}
                     className="group flex gap-6 items-start text-left"
                   >

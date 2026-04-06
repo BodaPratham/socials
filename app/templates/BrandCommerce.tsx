@@ -163,7 +163,10 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
               </div>
               <div className="grid grid-cols-1 gap-y-20">
                  {products.map((p: any) => (
-                    <a key={p.id} href={`/${profile.c_username}/checkout?type=product&id=${p.id}`} className="group block space-y-8">
+                    <a key={p.id}                       href={p.destination_url || `/${profile.c_username}/checkout?type=product&id=${p.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+ className="group block space-y-8">
                        <div className={`aspect-[4/5] bg-current/5 overflow-hidden relative shadow-2xl transition-transform duration-700 hover:-translate-y-2 ${getButtonShapeClasses()}`}>
                           {p.image_url ? (
                              <img src={p.image_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="" />
@@ -262,12 +265,19 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
                 const displayPrice = product?.price || '—';
                 const displayImage = product?.image_url;
                 const displayDesc = product?.description;
-                const checkoutUrl = product 
+                const checkoutUrl = product?.destination_url || (product 
                   ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
-                  : '#';
+                  : '#');
 
                 return (
-                  <a key={link.id} href={checkoutUrl} onClick={() => trackClick(link.id)} className="group block space-y-8">
+                  <a 
+                    key={link.id} 
+                    href={checkoutUrl} 
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => trackClick(link.id)} 
+                    className="group block space-y-8"
+                  >
                     <div className={`aspect-[4/5] bg-current/5 overflow-hidden relative shadow-2xl transition-transform duration-700 hover:-translate-y-2 ${getButtonShapeClasses()}`}>
                       {displayImage ? (
                         <img src={displayImage} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={displayName} />

@@ -143,7 +143,10 @@ export default function Dhurndhar({ profile, links = [], products = [] }: any) {
               </div>
               <div className="grid grid-cols-1 gap-8">
                  {products.map((p: any) => (
-                    <a key={p.id} href={`/${profile.c_username}/checkout?type=product&id=${p.id}`} className="group block relative aspect-square overflow-hidden border-[6px] border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
+                    <a key={p.id}                       href={p.destination_url || `/${profile.c_username}/checkout?type=product&id=${p.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+ className="group block relative aspect-square overflow-hidden border-[6px] border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
                        {p.image_url ? (
                           <img src={p.image_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="" />
                        ) : <ShoppingBag size={48} className="absolute inset-0 m-auto opacity-10" />}
@@ -233,14 +236,16 @@ export default function Dhurndhar({ profile, links = [], products = [] }: any) {
                 const displayPrice = product?.price || '—';
                 const displayImage = product?.image_url;
                 const displayDesc = product?.description;
-                const checkoutUrl = product 
+                const checkoutUrl = product?.destination_url || (product 
                   ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
-                  : '#';
+                  : '#');
 
                 return (
                   <a 
                     key={link.id}
                     href={checkoutUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     onClick={() => trackClick(link.id)}
                     className={`group block relative overflow-hidden border-[6px] border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all bg-white ${getButtonShapeClasses()}`}
                   >

@@ -159,7 +159,10 @@ export default function CreatorPro({ profile, links = [], products = [] }: any) 
               </div>
               <div className="grid grid-cols-1 gap-6">
                  {products.map((p: any) => (
-                    <a key={p.id} href={`/${profile.c_username}/checkout?type=product&id=${p.id}`} className="group block relative aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl">
+                    <a key={p.id}                       href={p.destination_url || `/${profile.c_username}/checkout?type=product&id=${p.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+ className="group block relative aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl">
                        {p.image_url ? (
                           <img src={p.image_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 group-hover:opacity-100" alt="" />
                        ) : <Briefcase size={32} className="absolute inset-0 m-auto opacity-10" />}
@@ -254,14 +257,16 @@ export default function CreatorPro({ profile, links = [], products = [] }: any) 
                 const displayPrice = product?.price || '—';
                 const displayImage = product?.image_url;
                 const displayDesc = product?.description;
-                const checkoutUrl = product 
+                const checkoutUrl = product?.destination_url || (product 
                   ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
-                  : '#';
+                  : '#');
 
                 return (
                   <a 
                     key={link.id}
                     href={checkoutUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     onClick={() => trackClick(link.id)}
                     className={`group block relative overflow-hidden border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] ${getButtonShapeClasses()}`}
                     style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
