@@ -226,20 +226,44 @@ useEffect(() => {
       await supabase.from("links").delete().eq("user_id", user.id);
       
       const linksToSave = links.map((link: any, index: number) => {
+        const { id, ...saveData } = link;
         const payload = {
-          ...link,
+          ...saveData,
           user_id: user.id,
           position: index,
         };
-        // Ensure valid UUIDs. If it's a numeric string (from Date.now()), remove it so Postgres creates a fresh UUID
-        if (payload.id && !payload.id.includes('-')) {
-          delete payload.id;
+        // ONLY send ID if it is a valid UUID (contains a hyphen)
+        if (id && typeof id === 'string' && id.includes('-')) {
+          payload.id = id;
         }
         return payload;
       });
 
-      const { error: lErr } = await supabase.from("links").insert(linksToSave);
-      if (lErr) throw lErr;
+      if (linksToSave.length > 0) {
+        const { error: lErr } = await supabase.from("links").insert(linksToSave);
+        if (lErr) throw lErr;
+      }
+
+      // 3. Save products (Upsert to maintain IDs and handle new products)
+      if (products && products.length > 0) {
+        const productsToSave = products.map((p: any) => {
+          const { id, ...saveData } = p;
+          const payload = {
+            ...saveData,
+            user_id: user.id
+          };
+          // ONLY send ID if it is a valid UUID
+          if (id && typeof id === 'string' && id.includes('-')) {
+            payload.id = id;
+          }
+          return payload;
+        });
+        
+        const { error: prErr } = await supabase
+          .from("products")
+          .upsert(productsToSave);
+        if (prErr) throw prErr;
+      }
 
       alert("✅ Page Successfully Updated");
     } catch (err: any) {
