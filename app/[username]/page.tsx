@@ -7,11 +7,11 @@ export default async function PublicProfile(props: { params: Promise<{ username:
   const username = params.username;
   const supabase = await createClient()
 
-  // 1. Fetch Profile
+  // 1. Fetch Profile (Ensuring case-insensitive matching by lowercasing the param)
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('c_username', username)
+    .eq('c_username', username.toLowerCase())
     .single()
 
   if (!profile) notFound()
