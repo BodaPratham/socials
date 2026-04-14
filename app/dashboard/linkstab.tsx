@@ -137,9 +137,16 @@ const socialPlatforms = [
             <label className="text-[10px] font-black uppercase tracking-widest opacity-50">Handle</label>
             <input
               value={profile.c_username}
-              onChange={(e) => setProfile({ ...profile, c_username: e.target.value })}
+              onChange={(e) => {
+                const normalized = e.target.value
+                  .toLowerCase()
+                  .replace(/\s+/g, '-') // spaces to hyphens
+                  .replace(/[^a-z0-z0-9\-]/g, ''); // removed special chars
+                setProfile({ ...profile, c_username: normalized });
+              }}
               className="w-full p-4 border rounded-2xl font-bold text-sm outline-none bg-transparent placeholder-zinc-500"
               style={{ borderColor: panelBorder }}
+              placeholder="your-handle"
             />
           </div>
           <div className="space-y-2">

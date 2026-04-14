@@ -690,7 +690,7 @@ useEffect(() => {
       <button
         onClick={() =>
           profile?.c_username &&
-          window.open(`/${profile.c_username}`, "_blank")
+          window.open(`/${encodeURIComponent(profile.c_username)}`, "_blank")
         }
         className="flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm hover:scale-105 transition-all"
         style={{ backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)' }}
@@ -700,7 +700,7 @@ useEffect(() => {
       <button
         onClick={() => {
           navigator.clipboard.writeText(
-            `${window.location.origin}/${profile?.c_username}`
+            `${window.location.origin}/${encodeURIComponent(profile?.c_username || '')}`
           );
           alert("Link Copied!");
         }}

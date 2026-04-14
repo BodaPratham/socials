@@ -116,7 +116,7 @@ export async function updateProfile(formData: FormData) {
   const { error } = await supabase
     .from('profiles')
     .update({ 
-      c_username: c_username.toLowerCase().replace(/\s/g, ''), // Clean the username
+      c_username: c_username.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-z0-9\-]/g, ''), // Clean the username
       bio, 
       upi_id: upi 
     })
