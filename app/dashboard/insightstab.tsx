@@ -64,12 +64,22 @@ export default function InsightsTab({
         fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
         const isoFiveMin = fiveMinutesAgo.toISOString();
 
+        const safeQuery = async (query: any, isCount = true) => {
+          try {
+            const res = await query;
+            if (res.error) return isCount ? { count: 0 } : { data: [] };
+            return res;
+          } catch (e) {
+            return isCount ? { count: 0 } : { data: [] };
+          }
+        };
+
         const [viewsRes, clicksRes, contactsRes, liveRes, allViewsRes] = await Promise.all([
-          supabase.from('page_visits').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate),
-          supabase.from('link_clicks').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate),
-          supabase.from('contacts').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate),
-          supabase.from('page_visits').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoFiveMin),
-          supabase.from('page_visits').select('created_at').eq('user_id', profile.id).gte('created_at', isoDate)
+          safeQuery(supabase.from('page_visits').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate)),
+          safeQuery(supabase.from('link_clicks').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate)),
+          safeQuery(supabase.from('contacts').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate)),
+          safeQuery(supabase.from('page_visits').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoFiveMin)),
+          safeQuery(supabase.from('page_visits').select('created_at').eq('user_id', profile.id).gte('created_at', isoDate), false)
         ]);
 
         setStats({

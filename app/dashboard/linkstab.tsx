@@ -136,7 +136,7 @@ const socialPlatforms = [
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest opacity-50">Handle</label>
             <input
-              value={profile.c_username}
+              value={profile.c_username || ""}
               onChange={(e) => {
                 const normalized = e.target.value
                   .toLowerCase()
@@ -152,7 +152,7 @@ const socialPlatforms = [
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest opacity-50">Bio</label>
             <input
-              value={profile.bio}
+              value={profile.bio || ""}
               onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
               className="w-full p-4 border rounded-2xl font-bold text-sm outline-none bg-transparent placeholder-zinc-500"
               style={{ borderColor: panelBorder }}

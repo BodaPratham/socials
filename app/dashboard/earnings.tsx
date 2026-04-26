@@ -29,12 +29,12 @@ export default function EarningsPage({
     async function fetchEarnings() {
       if (!profile?.id) return;
       try {
-        const { data: salesData } = await supabase
+        const { data: salesData, error } = await supabase
           .from('marketplace_transactions')
           .select('*')
           .eq('creator_id', profile.id);
 
-        if (salesData) {
+        if (salesData && !error) {
           setTransactions(salesData);
         }
       } catch (error) {
