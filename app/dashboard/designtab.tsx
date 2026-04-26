@@ -205,7 +205,6 @@ export default function DesignTab({
                   label="Portfolio Content" 
                   value="Configure" 
                   onClick={() => setActiveView('portfolio')} 
-                  premium
                 />
               )}
               {profile.template_id === 'cafe-restaurant' && (
@@ -214,7 +213,6 @@ export default function DesignTab({
                    label="Menu Management" 
                    value="Configure" 
                    onClick={() => setActiveView('portfolio')} 
-                   premium
                  />
               )}
               {profile.template_id === 'brand-commerce' && (
@@ -223,7 +221,6 @@ export default function DesignTab({
                    label="Gallery Management" 
                    value="Configure" 
                    onClick={() => setActiveView('portfolio')} 
-                   premium
                  />
               )}
               <DesignItem icon={Type} label="Header" value={titleSize} onClick={() => setActiveView('header')} />

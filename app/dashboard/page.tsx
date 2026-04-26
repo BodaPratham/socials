@@ -110,9 +110,12 @@ const availableTemplates = [
 const [links, setLinks] = useState<any[]>([]);
 const [products, setProducts] = useState<any[]>([]);
 const [templates, setTemplates] = useState<any[]>([
-  { id: 'default', name: 'Classic Minimal' },
-  { id: 'creator-pro', name: 'Creator Pro' },
-  { id: 'glass', name: 'Glassmorphism' }
+  { id: 'minimal-modern', name: 'Classic Minimal', price: 0 },
+  { id: 'creator-pro', name: 'Creator Pro', price: 0 },
+  { id: 'cafe-restaurant', name: 'Cafe & Restaurant', price: 0 },
+  { id: 'brand-commerce', name: 'Brand & Commerce', price: 0 },
+  { id: 'elegant-wellness', name: 'Elegant Wellness', price: 0 },
+  { id: 'professional-portfolio', name: 'Professional Portfolio', price: 0 }
 ]);
 const [showSocialModal, setShowSocialModal] = useState(false);
 const fileInputRef = useRef<HTMLInputElement>(null);
