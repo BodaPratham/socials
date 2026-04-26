@@ -42,7 +42,8 @@ import {
   UploadCloud,
   AlignLeft,
   Heart,      // <--- ADD THIS FOR THE TIP JAR
-  Shield
+  Shield,
+  Crown
 } from "lucide-react";
 import { RenderTemplate } from '../templates';
 
@@ -52,6 +53,7 @@ import DesignTab from "./designtab";
 import EarningsTab from "./earnings";
 import InsightsTab from "./insightstab";
 import ToolsTab from "./toolstab";
+import PricingTab from "./pricingtab";
 
 // ==========================================
 // INTERFACES (Replaces Types to fix Parsing Error)
@@ -574,6 +576,17 @@ useEffect(() => {
                 </span>
               )}
             </button>
+            <button
+              onClick={() => setActiveTab("plans")}
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${activeTab === 'plans' ? 'opacity-100 bg-white/10' : 'opacity-60 hover:opacity-100 hover:bg-white/5'}`}
+            >
+              <Crown size={20} className={activeTab === 'plans' ? 'text-yellow-400' : ''} />
+              {!isCollapsed && (
+                <span className="text-[11px] font-bold uppercase tracking-widest">
+                  Plans
+                </span>
+              )}
+            </button>
           </div>
         </nav>
       </aside>
@@ -662,14 +675,25 @@ useEffect(() => {
               <EarningsTab 
                 profile={profile} 
                 products={products} 
-                dashBtn={dashBtn}
                 dashText={dashText}
                 panelBg={panelBg}
                 panelBorder={panelBorder}
+                setActiveTab={setActiveTab}
               />
             )}
             {activeTab === "insights" && (
               <InsightsTab 
+                profile={profile}
+                dashBtn={dashBtn}
+                dashBtnText={dashBtnText}
+                panelBg={panelBg}
+                panelBorder={panelBorder}
+                dashText={dashText}
+                setActiveTab={setActiveTab}
+              />
+            )}
+            {activeTab === "plans" && (
+              <PricingTab 
                 profile={profile}
                 dashBtn={dashBtn}
                 dashBtnText={dashBtnText}

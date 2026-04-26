@@ -13,7 +13,8 @@ import {
   Youtube, 
   ExternalLink,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Crown
 } from "lucide-react";
 
 interface InsightsTabProps {
@@ -23,6 +24,7 @@ interface InsightsTabProps {
   panelBg?: string;
   panelBorder?: string;
   dashText?: string;
+  setActiveTab?: (tab: string) => void;
 }
 
 export default function InsightsTab({
@@ -31,13 +33,16 @@ export default function InsightsTab({
   dashBtnText = '#FFFFFF',
   panelBg = 'rgba(255,255,255,0.05)',
   panelBorder = 'rgba(255,255,255,0.1)',
-  dashText = '#FFFFFF'
+  dashText = '#FFFFFF',
+  setActiveTab
 }: InsightsTabProps) {
   const [stats, setStats] = React.useState({
     views: 0,
     clicks: 0,
-    contacts: 0
+    contacts: 0,
+    live: 0
   });
+  const [dailyData, setDailyData] = React.useState<number[]>([]);
   const [loading, setLoading] = React.useState(true);
   const supabase = React.useMemo(() => {
     // We assume the component is client-side and can use a client util
@@ -51,22 +56,42 @@ export default function InsightsTab({
       if (!profile?.id) return;
       try {
         setLoading(true);
-        // Fetch last 7 days stats
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         const isoDate = weekAgo.toISOString();
 
-        const [viewsRes, clicksRes, contactsRes] = await Promise.all([
+        const fiveMinutesAgo = new Date();
+        fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+        const isoFiveMin = fiveMinutesAgo.toISOString();
+
+        const [viewsRes, clicksRes, contactsRes, liveRes, allViewsRes] = await Promise.all([
           supabase.from('page_visits').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate),
           supabase.from('link_clicks').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate),
-          supabase.from('contacts').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate)
+          supabase.from('contacts').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoDate),
+          supabase.from('page_visits').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).gte('created_at', isoFiveMin),
+          supabase.from('page_visits').select('created_at').eq('user_id', profile.id).gte('created_at', isoDate)
         ]);
 
         setStats({
           views: viewsRes.count || 0,
           clicks: clicksRes.count || 0,
-          contacts: contactsRes.count || 0
+          contacts: contactsRes.count || 0,
+          live: liveRes.count || 0
         });
+
+        // Group views by day for the last 7 days
+        if (allViewsRes.data) {
+          const counts = new Array(7).fill(0);
+          const now = new Date();
+          allViewsRes.data.forEach((v: any) => {
+            const vDate = new Date(v.created_at);
+            const diffDays = Math.floor((now.getTime() - vDate.getTime()) / (1000 * 3600 * 24));
+            if (diffDays >= 0 && diffDays < 7) {
+              counts[6 - diffDays]++;
+            }
+          });
+          setDailyData(counts);
+        }
       } catch (error) {
         console.error("Error fetching insights:", error);
       } finally {
@@ -114,10 +139,23 @@ export default function InsightsTab({
       </div>
 
       {/* Top Row Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard icon={Eye} label="Views" value={loading ? "..." : stats.views} />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard icon={Eye} label="Total Views" value={loading ? "..." : stats.views} />
         <StatCard icon={MousePointer2} label="Clicks" value={loading ? "..." : stats.clicks} />
-        <StatCard icon={UserPlus} label="New contacts" value={loading ? "..." : stats.contacts} />
+        <StatCard icon={UserPlus} label="Leads" value={loading ? "..." : stats.contacts} />
+        <div className="p-8 rounded-[2rem] border shadow-xl flex flex-col gap-4 transition-all hover:scale-[1.02] relative overflow-hidden" style={{ backgroundColor: panelBg, borderColor: panelBorder }}>
+           <div className="flex items-center justify-between">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Live Now</span>
+          </div>
+          <div>
+            <div className="text-4xl font-black tracking-tighter mb-1">{loading ? "..." : stats.live}</div>
+            <div className="text-[10px] font-black uppercase tracking-widest opacity-40">Visitors</div>
+          </div>
+          <div className="absolute -right-4 -bottom-4 opacity-5 rotate-12">
+            <Eye size={80} />
+          </div>
+        </div>
       </div>
 
       {/* Main Activity Chart Area */}
@@ -127,38 +165,64 @@ export default function InsightsTab({
             <h3 className="text-sm font-black uppercase tracking-widest opacity-60">Linktree activity</h3>
             <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
           </div>
-          <button className="text-[10px] font-black uppercase tracking-widest underline decoration-dotted opacity-40 hover:opacity-100 transition-all">Show sample data</button>
+          <button className="text-[10px] font-black uppercase tracking-widest underline decoration-dotted opacity-40 hover:opacity-100 transition-all">Daily performance</button>
         </div>
 
-        {/* Illustration Placeholder */}
-        <div className="flex flex-col items-center gap-8 text-center max-w-sm">
-           <div className="relative w-48 h-32 flex items-center justify-center">
-             {/* Styled Chart Placeholder */}
-             <div className="absolute inset-0 bg-white/5 rounded-3xl border-2 border-dashed flex items-end justify-around p-4 gap-2" style={{ borderColor: panelBorder }}>
-                <div className="w-full bg-white/10 rounded-t-lg transition-all duration-1000" style={{ height: '30%' }}></div>
-                <div className="w-full bg-white/10 rounded-t-lg transition-all duration-1000 delay-100" style={{ height: '50%' }}></div>
-                <div className="w-full bg-white/10 rounded-t-lg transition-all duration-1000 delay-200" style={{ height: '20%' }}></div>
-                <div className="w-full bg-white/10 rounded-t-lg transition-all duration-1000 delay-300" style={{ height: '70%' }}></div>
-                <div className="w-full bg-white/10 rounded-t-lg transition-all duration-1000 delay-400" style={{ height: '40%' }}></div>
+        {/* Illustration or Real Chart */}
+        <div className="flex flex-col items-center gap-8 text-center w-full max-w-2xl">
+           {dailyData.some(d => d > 0) ? (
+             <div className="w-full h-48 flex items-end justify-between px-4 gap-4">
+                {dailyData.map((val, i) => {
+                  const maxVal = Math.max(...dailyData, 1);
+                  const height = (val / maxVal) * 100;
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group">
+                      <div className="relative w-full flex items-end justify-center">
+                        <div 
+                          className="w-full bg-gradient-to-t from-purple-600/20 to-purple-500/80 rounded-t-xl transition-all duration-1000 group-hover:to-purple-400 group-hover:scale-x-105" 
+                          style={{ height: `${Math.max(height, 5)}%` }}
+                        >
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md px-2 py-1 rounded-lg text-[9px] font-black opacity-0 group-hover:opacity-100 transition-all">
+                            {val}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-[8px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-all">
+                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][(new Date().getDay() + i + 1) % 7]}
+                      </span>
+                    </div>
+                  );
+                })}
              </div>
-             {/* Visitor Badge Mock */}
-             <div className="absolute -right-4 -top-4 px-4 py-2 rounded-2xl bg-white/10 border backdrop-blur-md shadow-xl" style={{ borderColor: panelBorder }}>
-                <div className="text-lg font-black tracking-tighter">256k</div>
-                <div className="text-[8px] font-black uppercase tracking-widest opacity-40">visitors</div>
-             </div>
-           </div>
+           ) : (
+             <div className="flex flex-col items-center gap-8">
+                <div className="relative w-48 h-32 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-white/5 rounded-3xl border-2 border-dashed flex items-end justify-around p-4 gap-2" style={{ borderColor: panelBorder }}>
+                      <div className="w-full bg-white/10 rounded-t-lg" style={{ height: '30%' }}></div>
+                      <div className="w-full bg-white/10 rounded-t-lg" style={{ height: '50%' }}></div>
+                      <div className="w-full bg-white/10 rounded-t-lg" style={{ height: '20%' }}></div>
+                      <div className="w-full bg-white/10 rounded-t-lg" style={{ height: '70%' }}></div>
+                      <div className="w-full bg-white/10 rounded-t-lg" style={{ height: '40%' }}></div>
+                  </div>
+                  <div className="absolute -right-4 -top-4 px-4 py-2 rounded-2xl bg-white/10 border backdrop-blur-md shadow-xl" style={{ borderColor: panelBorder }}>
+                      <div className="text-lg font-black tracking-tighter">0</div>
+                      <div className="text-[8px] font-black uppercase tracking-widest opacity-40">visitors</div>
+                  </div>
+                </div>
 
-           <div className="space-y-3">
-             <p className="text-sm font-bold opacity-60">No Linktree activity during this time</p>
-             <button 
-               onClick={handleShare}
-               className="px-10 py-5 rounded-full font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shadow-2xl active:scale-95 transition-all mx-auto"
-               style={{ backgroundColor: '#000000', color: '#FFFFFF' }}
-             >
-               <Share2 size={16} />
-               Share your Linktree
-             </button>
-           </div>
+                <div className="space-y-3">
+                  <p className="text-sm font-bold opacity-60">No Linktree activity during this time</p>
+                  <button 
+                    onClick={handleShare}
+                    className="px-10 py-5 rounded-full font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shadow-2xl active:scale-95 transition-all mx-auto"
+                    style={{ backgroundColor: '#000000', color: '#FFFFFF' }}
+                  >
+                    <Share2 size={16} />
+                    Share your Linktree
+                  </button>
+                </div>
+             </div>
+           )}
         </div>
 
         {/* Floating Tooltip Mock */}
@@ -220,10 +284,18 @@ export default function InsightsTab({
         {/* Most Clicked Links */}
         <div className="p-8 rounded-[2rem] border shadow-xl flex flex-col gap-6" style={{ backgroundColor: panelBg, borderColor: panelBorder }}>
            <div className="flex items-center justify-between group cursor-pointer">
-             <h3 className="text-[11px] font-black uppercase tracking-widest opacity-60">Most clicked links</h3>
-             <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+              <h3 className="text-[11px] font-black uppercase tracking-widest opacity-60">Most clicked links</h3>
+              <div className="flex items-center gap-2">
+                <Crown size={12} className="text-yellow-500" />
+                <span className="text-[8px] font-black uppercase tracking-widest text-yellow-500/60">Pro</span>
+              </div>
            </div>
-           <button className="text-[10px] font-black uppercase tracking-widest underline decoration-dotted opacity-40 hover:opacity-100 text-left">Show sample data</button>
+           <button 
+             onClick={() => setActiveTab?.('plans')}
+             className="text-[10px] font-black uppercase tracking-widest underline decoration-dotted opacity-40 hover:opacity-100 text-left"
+           >
+             Upgrade to view
+           </button>
            
            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-2 py-4">
               <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center">

@@ -2,7 +2,7 @@ import {
     Camera, Loader2, ImageIcon, Mail, ChevronDown, GripVertical, 
     Phone, Instagram, Youtube, Globe, Settings, Trash2, Link2, 
     Play, ShoppingBag, Type, Heart, Users, UploadCloud, CreditCard, Plus, Share2,
-    DollarSign, Search, HelpCircle, FileText, FileAudio, Video, AlignLeft, FormInput, FileIcon, Minus, MousePointerSquareDashed, Heading, Pencil
+    DollarSign, Search, HelpCircle, FileText, FileAudio, Video, AlignLeft, FormInput, FileIcon, Minus, MousePointerSquareDashed, Heading, Pencil, Crown
   } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
@@ -468,7 +468,11 @@ const socialPlatforms = [
                             <span className="font-bold text-sm text-zinc-800">Email Button</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Opens visitors' email app with your address pre-filled.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Download", url: "", type: "file" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Download", url: "", type: "file" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2 relative overflow-hidden">
+                            <div className="absolute top-2 right-2 flex items-center gap-1">
+                                <Crown size={10} className="text-yellow-500" />
+                                <span className="text-[7px] font-black uppercase tracking-widest text-yellow-600">Pro</span>
+                            </div>
                             <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-600"><FileText size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">File Button</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Share downloadable files like PDFs, resumes, or press kits.</span>
@@ -509,12 +513,20 @@ const socialPlatforms = [
                             <span className="font-bold text-sm text-zinc-800">Text</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Add rich text for announcements, bios, or any written content.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Subscribe", url: "", type: "form" }]); setShowAddMenu(false); }} className="p-4 border rounded-xl hover:opacity-80 transition-all flex flex-col items-center text-center gap-2" style={{ borderColor: panelBorder }}>
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Subscribe", url: "", type: "form" }]); setShowAddMenu(false); }} className="p-4 border rounded-xl hover:opacity-80 transition-all flex flex-col items-center text-center gap-2 relative overflow-hidden" style={{ borderColor: panelBorder }}>
+                            <div className="absolute top-2 right-2 flex items-center gap-1">
+                                <Crown size={10} className="text-yellow-500" />
+                                <span className="text-[7px] font-black uppercase tracking-widest text-yellow-600">Pro</span>
+                            </div>
                             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6' }}><FormInput size={18} /></div>
                             <span className="font-bold text-sm text-inherit">Form</span>
                             <span className="text-[10px] opacity-60 leading-tight">Build custom forms to collect sign-ups, RSVPs, or feedback.</span>
                         </button>
-                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Product", url: "", type: "shop" }]); setShowAddMenu(false); }} className="p-4 border rounded-xl hover:opacity-80 transition-all flex flex-col items-center text-center gap-2" style={{ borderColor: panelBorder }}>
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Product", url: "", type: "shop" }]); setShowAddMenu(false); }} className="p-4 border rounded-xl hover:opacity-80 transition-all flex flex-col items-center text-center gap-2 relative overflow-hidden" style={{ borderColor: panelBorder }}>
+                            <div className="absolute top-2 right-2 flex items-center gap-1">
+                                <Crown size={10} className="text-yellow-500" />
+                                <span className="text-[7px] font-black uppercase tracking-widest text-yellow-600">Pro</span>
+                            </div>
                             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: dashBtn, color: dashBtnText }}><ShoppingBag size={18} /></div>
                             <span className="font-bold text-sm text-inherit">Product</span>
                             <span className="text-[10px] opacity-60 leading-tight">Feature a digital or physical product directly.</span>
@@ -543,7 +555,11 @@ const socialPlatforms = [
                     <h4 className="font-bold text-[15px] mb-1 text-zinc-900">Engagement</h4>
                     <p className="text-xs text-zinc-500 mb-4">Grow your audience and connect with visitors</p>
                     <div className="grid grid-cols-2 gap-4">
-                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Instagram Post", url: "", type: "instagram" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2">
+                        <button onClick={() => { setLinks([...(links || []), { id: crypto.randomUUID(), title: "Instagram Post", url: "", type: "instagram" }]); setShowAddMenu(false); }} className="p-4 border border-zinc-200 rounded-xl hover:border-zinc-400 hover:bg-zinc-50 transition-all flex flex-col items-center text-center gap-2 relative overflow-hidden">
+                            <div className="absolute top-2 right-2 flex items-center gap-1">
+                                <Crown size={10} className="text-yellow-500" />
+                                <span className="text-[7px] font-black uppercase tracking-widest text-yellow-600">Pro</span>
+                            </div>
                             <div className="w-10 h-10 bg-pink-50 rounded-full flex items-center justify-center text-pink-600"><Instagram size={18} /></div>
                             <span className="font-bold text-sm text-zinc-800">Instagram Sync</span>
                             <span className="text-[10px] text-zinc-500 leading-tight">Display your latest Instagram posts automatically.</span>

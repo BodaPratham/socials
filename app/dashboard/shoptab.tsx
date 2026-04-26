@@ -10,7 +10,8 @@ import {
   FileText, 
   AlignLeft,
   ShoppingBag,
-  DollarSign
+  DollarSign,
+  Crown
 } from "lucide-react";
 
 export default function ShopTab({
@@ -87,7 +88,8 @@ export default function ShopTab({
               )}
               
               <div className="absolute top-6 left-6 flex gap-2">
-                <div className="px-4 py-1.5 bg-black/60 backdrop-blur-xl rounded-full border border-white/10">
+                <div className="px-4 py-1.5 bg-black/60 backdrop-blur-xl rounded-full border border-white/10 flex items-center gap-2">
+                  {product.product_type === 'digital' && <Crown size={10} className="text-yellow-500" />}
                   <span className="text-[9px] font-black uppercase tracking-widest text-white/80">
                     {product.product_type === 'digital' ? 'Digital Download' : 'External Affiliate'}
                   </span>

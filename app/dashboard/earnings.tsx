@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, Coffee, Package, Share2, Sparkles } from "lucide-react";
+import { TrendingUp, Coffee, Package, Share2, Sparkles, Crown } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 
 interface EarningsPageProps {
@@ -9,6 +9,7 @@ interface EarningsPageProps {
   dashText?: string;
   panelBg?: string;
   panelBorder?: string;
+  setActiveTab?: (tab: string) => void;
 }
 
 export default function EarningsPage({ 
@@ -17,7 +18,8 @@ export default function EarningsPage({
   dashBtn = '#A855F7',
   dashText = '#FFFFFF',
   panelBg = 'rgba(255,255,255,0.05)',
-  panelBorder = 'rgba(255,255,255,0.1)'
+  panelBorder = 'rgba(255,255,255,0.1)',
+  setActiveTab
 }: EarningsPageProps) {
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -145,6 +147,23 @@ export default function EarningsPage({
                <p className="text-xs opacity-60 mt-0.5">We're listening! <span className="underline cursor-pointer transition-colors" style={{ color: dashBtn }}>Share feedback</span></p>
              </div>
           </div>
+
+          {(profile?.subscription_plan === 'starter' || !profile?.subscription_plan) && (
+            <div className="mt-8 w-full max-w-sm p-6 rounded-[2rem] border border-dashed flex flex-col items-center text-center gap-4" style={{ borderColor: panelBorder, backgroundColor: 'rgba(168, 85, 247, 0.05)' }}>
+              <Crown size={24} className="text-yellow-500" />
+              <div>
+                <h4 className="text-sm font-black uppercase tracking-tighter">Unlock Pro Earnings</h4>
+                <p className="text-[10px] font-bold opacity-60 mt-1 max-w-[200px]">Sell digital products with 0% commission and get advanced sales reports.</p>
+              </div>
+              <button 
+                onClick={() => setActiveTab?.('plans')}
+                className="px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all hover:scale-105"
+                style={{ backgroundColor: dashBtn, color: '#FFFFFF' }}
+              >
+                View Pro Plans
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-8 animate-in fade-in duration-500">
