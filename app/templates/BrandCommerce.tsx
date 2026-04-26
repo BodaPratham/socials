@@ -26,6 +26,18 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
   const buttonRoundness = config.buttonRoundness || 'Round';
   const buttonStyle = config.buttonStyle || 'Solid';
 
+  // NEW DESIGN TOKENS
+  const profileSize = config.profileSize || 50;
+  const profileShadow = config.profileShadow || 0;
+  const profileBorder = config.profileBorder || 0;
+  const headerLayout = config.headerLayout || 'centered';
+  const tactileBlocks = config.tactileBlocks;
+  const blockCorner = config.blockCorner ?? 16;
+  const blockShadow = config.blockShadow || 0;
+  const blockBorder = config.blockBorder || 0;
+  const blockSpacing = config.blockSpacing ?? 10;
+  const socialIconSize = config.socialIconSize || 50;
+
   // GALLERY CONTENT
   const galleryItems = config.galleryItems || [];
 
@@ -103,41 +115,77 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
            
            {/* Overlapping Badge */}
-           <div className="absolute -bottom-20 left-12 p-3 bg-white shadow-2xl rounded-[3rem] z-20">
-              <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white shadow-inner">
+           <div className={`absolute ${headerLayout === 'centered' ? '-bottom-20 left-1/2 -translate-x-1/2' : '-bottom-20 left-12'} p-3 bg-white shadow-2xl rounded-[3rem] z-20`}>
+              <div 
+                className="rounded-[2.5rem] overflow-hidden border-4 border-white shadow-inner flex items-center justify-center bg-zinc-100"
+                style={{ 
+                  width: `${60 + (profileSize * 1.5)}px`, 
+                  height: `${60 + (profileSize * 1.5)}px`,
+                  borderWidth: `${profileBorder / 10}px`,
+                  borderColor: config.profileBorderColor || '#FFFFFF',
+                  boxShadow: profileShadow > 0 ? `0 ${profileShadow / 5}px ${profileShadow / 2}px rgba(0,0,0,${profileShadow / 200})` : 'none'
+                }}
+              >
                  {profile?.avatar_url ? (
                    <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
                  ) : (
                    <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-white/10">
-                      <Star size={48} />
+                      <Star size={profileSize + 20} />
                    </div>
                  )}
               </div>
            </div>
         </div>
 
-        {/* BRAND INFO */}
-        <section className="w-full pt-28 px-12 flex flex-col items-start space-y-6">
-           <div className="space-y-1">
-              <h1 className="text-3xl font-black tracking-tighter uppercase leading-none">{profile?.c_username || "AURA STUDIOS"}</h1>
-              <div className="flex items-center gap-2">
-                 <div className="w-8 h-[1px] bg-current opacity-20" />
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30">Est. 2024</span>
-              </div>
-           </div>
-           
-           <p className="max-w-md text-sm font-bold opacity-60 leading-relaxed italic">
-              {profile?.bio || "Elevated essentials for the modern minimalist. Designed with intention and crafted for longevity."}
-           </p>
+         {/* BRAND INFO */}
+         <section className={`w-full pt-28 px-12 flex flex-col ${headerLayout === 'centered' ? 'items-center text-center' : 'items-start text-left'} space-y-6`}>
+            <div className="space-y-1">
+               <h1 className="text-3xl font-black tracking-tighter uppercase leading-none">
+                 {profile?.c_username || "AURA STUDIOS"}
+                 {config.enableVerifiedBadge && <Star size={16} fill="#A855F7" className="inline ml-2 text-purple-500" />}
+               </h1>
+               <div className={`flex items-center gap-2 ${headerLayout === 'centered' ? 'justify-center' : ''}`}>
+                  <div className="w-8 h-[1px] bg-current opacity-20" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30">Est. {new Date().getFullYear()}</span>
+               </div>
+            </div>
+            
+            <p className={`max-w-md text-sm font-bold opacity-60 leading-relaxed italic ${headerLayout === 'centered' ? 'mx-auto' : ''}`}>
+               {profile?.bio || "Elevated essentials for the modern minimalist."}
+            </p>
+ 
+            {/* ACTION BUTTONS (Share, Add Contact) */}
+            <div className={`flex gap-2 w-full ${headerLayout === 'centered' ? 'justify-center' : ''}`}>
+               {config.enableAddContact && (
+                 <button className="px-8 py-3 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <Plus size={12} /> Add Contact
+                 </button>
+               )}
+               {config.enableShareButton && (
+                 <button className="w-12 h-12 bg-black/5 rounded-full flex items-center justify-center border border-black/10">
+                    <Share2 size={18} />
+                 </button>
+               )}
+            </div>
 
-           <div className="flex gap-6 pt-4">
-              {socialRowLinks?.map((s: any) => (
-                 <a key={s.id} href={s.url} target="_blank" rel="noreferrer" className="opacity-30 hover:opacity-100 hover:scale-110 transition-all">
-                    {getSocialIcon(s, 22)}
-                 </a>
-              ))}
-           </div>
-        </section>
+            <div className={`flex flex-wrap gap-6 pt-4 ${headerLayout === 'centered' ? 'justify-center' : ''}`}>
+               {socialRowLinks?.map((s: any) => (
+                  <a 
+                    key={s.id} 
+                    href={s.url} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="opacity-30 hover:opacity-100 hover:scale-110 transition-all flex items-center justify-center"
+                    style={{ 
+                      width: `${24 + (socialIconSize / 3)}px`, 
+                      height: `${24 + (socialIconSize / 3)}px`
+                    }}
+                  >
+                     {getSocialIcon(s, 16 + (socialIconSize / 10))}
+                  </a>
+               ))}
+            </div>
+         </section>
 
         {/* GALLERY GRID */}
         {galleryItems.length > 0 && (
@@ -316,7 +364,15 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
                     target="_blank" 
                     rel="noreferrer" 
                     onClick={() => trackClick(link.id)}
-                    className="flex items-center justify-between py-10 px-4 border-b group transition-all" style={{ borderBottomColor: `${pageTextColor}10` }}
+                    className="flex items-center justify-between py-10 px-4 border-b group transition-all" 
+                    style={{ 
+                      borderBottomColor: `${pageTextColor}10`,
+                      marginBottom: `${blockSpacing}px`,
+                      borderRadius: tactileBlocks === 'soft' ? `${blockCorner}px` : '0',
+                      borderWidth: blockBorder > 0 ? `${blockBorder / 10}px` : undefined,
+                      boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
+                      background: tactileBlocks === 'soft' ? `linear-gradient(135deg, rgba(0,0,0,0.02), rgba(0,0,0,0.05))` : undefined
+                    }}
                  >
                     <div className="space-y-1">
                        <p className="text-xl font-black tracking-tighter uppercase opacity-60 group-hover:opacity-100 transition-all italic">{link.title}</p>
@@ -333,7 +389,7 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
         {/* FOOTER */}
         <footer className="mt-56 border-t py-32 flex flex-col items-center gap-12" style={{ borderTopColor: `${pageTextColor}10` }}>
               <div className="text-center space-y-6">
-                 <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-20">Architected by Digital</p>
+                 {!config.hideBranding && <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-20">Architected by Digital</p>}
                  <div className="flex flex-col items-center justify-center gap-6">
                     <div className="w-14 h-14 rounded-[1.2rem] bg-black flex items-center justify-center text-white text-xl font-black italic shadow-2xl">S</div>
                     <span className="text-sm font-black tracking-widest uppercase" style={{ color: pageTextColor }}>Socials <span className="opacity-40">Pro</span></span>

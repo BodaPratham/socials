@@ -4,7 +4,7 @@ import React from 'react';
 import { 
   Instagram, Youtube, Twitter, Linkedin, Facebook, 
   ArrowUpRight, Share2, Globe, Shield, Zap, Search,
-  Menu, X, ExternalLink, Play, ShoppingBag, ArrowRight
+  Menu, X, ExternalLink, Play, ShoppingBag, ArrowRight, Plus
 } from 'lucide-react';
 
 export default function ProfessionalPortfolio({ profile, links = [], products = [] }: any) {
@@ -17,6 +17,17 @@ export default function ProfessionalPortfolio({ profile, links = [], products = 
   const pageTextColor = config.pageTextColor || '#FFFFFF';
   const btnColor = config.btnColor || '#38BDF8'; 
   
+  // NEW DESIGN TOKENS
+  const profileSize = config.profileSize || 50;
+  const profileShadow = config.profileShadow || 0;
+  const profileBorder = config.profileBorder || 0;
+  const headerLayout = config.headerLayout || 'centered';
+  const tactileBlocks = config.tactileBlocks;
+  const blockCorner = config.blockCorner ?? 16;
+  const blockShadow = config.blockShadow || 0;
+  const blockBorder = config.blockBorder || 0;
+  const blockSpacing = config.blockSpacing ?? 10;
+  const socialIconSize = config.socialIconSize || 50;
   const getSocialIcon = (link: any, size = 20) => {
     const type = link?.icon_type?.toLowerCase() || "";
     const u = link?.url?.toLowerCase() || "";
@@ -51,37 +62,65 @@ export default function ProfessionalPortfolio({ profile, links = [], products = 
         </div>
 
         {/* HERO SECTION */}
-        <header className="pt-10 pb-12 px-8 flex flex-col items-center text-center">
-           <div className="w-24 h-24 rounded-full overflow-hidden mb-6 border-2 border-white/5 bg-zinc-900 shadow-2xl relative p-1">
-              {profile?.avatar_url ? (
-                 <img src={profile.avatar_url} className="w-full h-full object-cover rounded-full" alt="Profile" />
-              ) : (
-                 <div className="w-full h-full flex items-center justify-center text-zinc-800">
-                    <Zap size={32} />
-                 </div>
-              )}
-           </div>
-           
-           <div className="flex items-center gap-2 mb-2">
-              <h1 className="text-xl font-black uppercase tracking-tight">
-                {profile?.display_name || profile?.c_username}
-              </h1>
-              <div className="w-4 h-4 bg-sky-500 rounded-full flex items-center justify-center p-0.5">
-                 <Shield size={10} className="text-white fill-white" />
-              </div>
-           </div>
-           
-           <p className="text-xs opacity-50 font-bold mb-8 max-w-[280px] leading-relaxed">
-              {profile?.bio || "Work smarter. Smart workspace + Personal AI built for how you actually work."}
-           </p>
+         <header className={`pt-10 pb-12 px-8 flex flex-col ${headerLayout === 'centered' ? 'items-center text-center' : 'items-start text-left'}`}>
+            <div 
+              className="rounded-full overflow-hidden mb-6 border-2 border-white/5 bg-zinc-900 shadow-2xl relative p-1 shrink-0"
+              style={{ 
+                width: `${60 + (profileSize * 1.5)}px`, 
+                height: `${60 + (profileSize * 1.5)}px`,
+                borderWidth: `${profileBorder / 10}px`,
+                borderColor: config.profileBorderColor || '#FFFFFF22',
+                boxShadow: profileShadow > 0 ? `0 ${profileShadow / 5}px ${profileShadow / 2}px rgba(0,0,0,${profileShadow / 200})` : 'none'
+              }}
+            >
+               {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} className="w-full h-full object-cover rounded-full" alt="Profile" />
+               ) : (
+                  <div className="w-full h-full flex items-center justify-center text-zinc-800">
+                     <Zap size={profileSize + 10} />
+                  </div>
+               )}
+            </div>
+            
+            <div className="flex items-center gap-2 mb-2">
+               <h1 className="text-xl font-black uppercase tracking-tight">
+                 {profile?.display_name || profile?.c_username}
+                 {config.enableVerifiedBadge && <Shield size={14} className="text-sky-500 fill-sky-500 inline ml-1" />}
+               </h1>
+            </div>
+            
+            <p className={`text-xs opacity-50 font-bold mb-8 max-w-[280px] leading-relaxed ${headerLayout === 'centered' ? 'mx-auto' : ''}`}>
+               {profile?.bio || "Work smarter."}
+            </p>
 
-           <div className="flex justify-center gap-8 mb-12">
-              {socialLinks.map((s: any) => (
-                <a key={s.id} href={s.url} target="_blank" rel="noreferrer" className="opacity-60 hover:opacity-100 hover:scale-110 transition-all">
-                   {getSocialIcon(s, 20)}
-                </a>
-              ))}
-           </div>
+            {/* ACTION BUTTONS (Share, Add Contact) */}
+            <div className={`flex gap-2 mb-10 w-full ${headerLayout === 'centered' ? 'justify-center' : ''}`}>
+               {config.enableAddContact && (
+                 <button className="flex-1 max-w-[140px] py-3 bg-white text-black rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl">
+                    <Plus size={12} /> Contact
+                 </button>
+               )}
+               {config.enableShareButton && (
+                 <button className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/10 text-white">
+                    <Share2 size={16} />
+                 </button>
+               )}
+            </div>
+ 
+            <div className={`flex ${headerLayout === 'centered' ? 'justify-center' : ''} gap-8 mb-12`}>
+               {socialLinks.map((s: any) => (
+                 <a 
+                   key={s.id} 
+                   href={s.url} 
+                   target="_blank" 
+                   rel="noreferrer" 
+                   className="opacity-60 hover:opacity-100 hover:scale-110 transition-all"
+                   style={{ color: btnColor }}
+                 >
+                    {getSocialIcon(s, 16 + (socialIconSize / 10))}
+                 </a>
+               ))}
+            </div>
         </header>
 
         {/* LARGE IMAGE BLOCKS (PRODUCTS) */}
@@ -121,13 +160,22 @@ export default function ProfessionalPortfolio({ profile, links = [], products = 
               <h4 className="text-[10px] font-black uppercase tracking-[0.5em] opacity-20 text-center mb-10">Links / Items</h4>
               <div className="space-y-4">
                  {mainLinks.map((link: any) => (
-                    <a 
-                      key={link.id} 
-                      href={link.url} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="flex items-center justify-between p-6 rounded-3xl bg-zinc-900/40 border border-white/5 hover:bg-zinc-800/40 transition-all group"
-                    >
+                     <a 
+                       key={link.id} 
+                       href={link.url} 
+                       target="_blank" 
+                       rel="noreferrer"
+                       className="flex items-center justify-between p-6 transition-all group"
+                       style={{ 
+                         backgroundColor: `rgba(255,255,255,0.03)`, 
+                         borderColor: blockBorder > 0 ? `${pageTextColor}${Math.round(blockBorder * 2.55).toString(16).padStart(2, '0')}` : `rgba(255,255,255,0.05)`,
+                         marginBottom: `${blockSpacing}px`,
+                         borderRadius: `${blockCorner}px`,
+                         borderWidth: `${blockBorder / 10}px`,
+                         boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
+                         background: tactileBlocks === 'soft' ? `linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))` : undefined
+                       }}
+                     >
                        <span className="text-sm font-bold opacity-80 group-hover:opacity-100">{link.title}</span>
                        <ArrowRight size={16} className="opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </a>
@@ -137,14 +185,16 @@ export default function ProfessionalPortfolio({ profile, links = [], products = 
         )}
 
         {/* FOOTER */}
-        <footer className="mt-20 px-10 py-20 text-center bg-zinc-950">
-           <div className="flex justify-center mb-8">
-              <div className="w-12 h-12 rounded-full border-4 border-white/10 flex items-center justify-center opacity-20">
-                 <Zap size={20} />
+         {!config.hideBranding && (
+           <footer className="mt-20 px-10 py-20 text-center bg-zinc-950">
+              <div className="flex justify-center mb-8">
+                 <div className="w-12 h-12 rounded-full border-4 border-white/10 flex items-center justify-center opacity-20">
+                    <Zap size={20} />
+                 </div>
               </div>
-           </div>
-           <p className="text-[10px] font-bold uppercase tracking-[0.5em] opacity-20">Architected by Digital</p>
-        </footer>
+              <p className="text-[10px] font-bold uppercase tracking-[0.5em] opacity-20">Architected by Digital</p>
+           </footer>
+         )}
 
       </div>
     </div>

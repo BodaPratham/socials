@@ -30,6 +30,18 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
   const titleSize = config.titleSize || 'Small';
   const bgImage = config.bgImage;
 
+  // NEW DESIGN TOKENS
+  const profileSize = config.profileSize || 50;
+  const profileShadow = config.profileShadow || 0;
+  const profileBorder = config.profileBorder || 0;
+  const headerLayout = config.headerLayout || 'centered';
+  const tactileBlocks = config.tactileBlocks;
+  const blockCorner = config.blockCorner ?? 16;
+  const blockShadow = config.blockShadow || 0;
+  const blockBorder = config.blockBorder || 0;
+  const blockSpacing = config.blockSpacing ?? 10;
+  const socialIconSize = config.socialIconSize || 50;
+
   // 1. ADVANCED YOUTUBE ID EXTRACTOR
   const getYoutubeId = (url: string) => {
     if (!url) return null;
@@ -146,49 +158,74 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/40 to-transparent" />
         </div>
 
-        {/* PROFILE BADGE OVERLAP */}
-        <div className="px-6 -mt-20 flex flex-col items-center">
-           <div 
-             className="w-36 h-36 rounded-full border-[8px] bg-white shadow-2xl overflow-hidden relative z-20 group transition-transform hover:scale-105"
-             style={{ borderColor: bgColor }}
-           >
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
-              ) : (
-                <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-300">
-                  <Users size={60} />
-                </div>
-              )}
-           </div>
+         {/* PROFILE BADGE OVERLAP */}
+         <div className={`px-6 -mt-20 flex flex-col ${headerLayout === 'centered' ? 'items-center text-center' : 'items-start text-left'} w-full`}>
+            <div 
+              className="rounded-full bg-white relative z-20 group transition-transform hover:scale-105 shadow-2xl overflow-hidden"
+              style={{ 
+                width: `${60 + (profileSize * 1.5)}px`, 
+                height: `${60 + (profileSize * 1.5)}px`,
+                borderWidth: `${profileBorder / 10}px`,
+                borderColor: config.profileBorderColor || bgColor,
+                boxShadow: profileShadow > 0 ? `0 ${profileShadow / 5}px ${profileShadow / 2}px rgba(0,0,0,${profileShadow / 200})` : 'none'
+              }}
+            >
+               {profile?.avatar_url ? (
+                 <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
+               ) : (
+                 <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-300">
+                   <Users size={profileSize + 20} />
+                 </div>
+               )}
+            </div>
 
-           <div className="mt-6 text-center space-y-2">
-              <h1 className={`font-black tracking-tight ${titleSize === 'Large' ? 'text-3xl' : titleSize === 'Medium' ? 'text-2xl' : 'text-xl'}`}>
-                {profile?.c_username || "Socials Creator"}
-                {profile?.is_verified && <Star size={16} fill="#A855F7" className="inline ml-2 text-purple-500" />}
-              </h1>
-              <p className="text-sm font-bold opacity-60 leading-relaxed max-w-xs mx-auto italic">
-                {profile?.bio || "Digital Architect & Content Creator. Building the future of social presence."}
-              </p>
-           </div>
+            <div className={`mt-6 space-y-2 ${headerLayout === 'centered' ? 'items-center' : 'items-start'}`}>
+               <h1 className={`font-black tracking-tight ${titleSize === 'Large' ? 'text-3xl' : titleSize === 'Medium' ? 'text-2xl' : 'text-xl'}`}>
+                 {profile?.c_username || "Socials Creator"}
+                 {config.enableVerifiedBadge && <Star size={16} fill="#A855F7" className="inline ml-2 text-purple-500" />}
+               </h1>
+               <p className={`text-sm font-bold opacity-60 leading-relaxed max-w-xs mx-auto italic ${headerLayout === 'centered' ? '' : 'ml-0'}`}>
+                 {profile?.bio || "Digital Architect & Content Creator."}
+               </p>
+            </div>
 
-           {/* SOCIAL ROW - PREMIUM CHIPS */}
-           <div className="flex flex-wrap justify-center gap-3 mt-8">
-              {socialRowLinks?.map((s: any) => (
-                <a 
-                  key={s.id} 
-                  href={s.url} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-lg hover:scale-110 active:scale-95 transition-all group"
-                  style={{ backgroundColor: buttonStyle === 'Glass' ? 'rgba(255,255,255,0.05)' : `${btnColor}11`, borderColor: `${btnColor}22` }}
-                >
-                  <div style={{ color: btnColor }}>
-                    {getSocialIcon(s, 22)}
-                  </div>
-                </a>
-              ))}
-           </div>
-        </div>
+            {/* ACTION BUTTONS (Share, Add Contact) */}
+            <div className="flex gap-2 mt-6">
+               {config.enableAddContact && (
+                 <button className="px-6 py-2 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <Plus size={12} /> Add Contact
+                 </button>
+               )}
+               {config.enableShareButton && (
+                 <button className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/10">
+                    <Share2 size={16} />
+                 </button>
+               )}
+            </div>
+
+            {/* SOCIAL ROW - PREMIUM CHIPS */}
+            <div className={`flex flex-wrap ${headerLayout === 'centered' ? 'justify-center' : 'justify-start'} gap-3 mt-8 w-full`}>
+               {socialRowLinks?.map((s: any) => (
+                 <a 
+                   key={s.id} 
+                   href={s.url} 
+                   target="_blank" 
+                   rel="noreferrer"
+                   className="flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-lg hover:scale-110 active:scale-95 transition-all group"
+                   style={{ 
+                     width: `${32 + (socialIconSize / 2.5)}px`, 
+                     height: `${32 + (socialIconSize / 2.5)}px`,
+                     backgroundColor: buttonStyle === 'Glass' ? 'rgba(255,255,255,0.05)' : `${btnColor}11`, 
+                     borderColor: `${btnColor}22` 
+                   }}
+                 >
+                   <div style={{ color: btnColor }}>
+                     {getSocialIcon(s, 16 + (socialIconSize / 10))}
+                   </div>
+                 </a>
+               ))}
+            </div>
+         </div>
 
         {/* MAIN CONTENT BLOCKS */}
         <div className="mt-16 px-6 flex flex-col gap-5">
@@ -385,8 +422,15 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
                   target="_blank" 
                   rel="noreferrer" 
                   onClick={() => trackClick(link.id)}
-                  className={`flex items-center p-4 sm:p-5 group transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] ${buttonShadow !== 'None' ? 'shadow-lg' : ''}`}
-                  style={{ ...getButtonStyle() }}
+                  className={`flex items-center p-4 sm:p-5 group transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] ${blockShadow > 0 ? 'shadow-lg' : ''}`}
+                  style={{ 
+                    ...getButtonStyle(),
+                    marginBottom: `${blockSpacing}px`,
+                    borderRadius: `${blockCorner}px`,
+                    borderWidth: `${blockBorder / 10}px`,
+                    boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
+                    background: tactileBlocks === 'soft' ? `linear-gradient(135deg, ${btnColor}, ${btnColor}dd)` : undefined
+                  }}
                 >
                   <div 
                     className={`shrink-0 w-12 h-12 flex items-center justify-center transition-all group-hover:scale-110 ${getButtonShapeClasses()}`}
@@ -452,7 +496,7 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
                   <a href="/" className="px-8 py-3 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">Get Started Free</a>
                </div>
             </div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.4em] opacity-10 mt-10">Architected by Digital Socials &copy; {new Date().getFullYear()}</p>
+            {!config.hideBranding && <p className="text-[9px] font-bold uppercase tracking-[0.4em] opacity-10 mt-10">Architected by Digital Socials &copy; {new Date().getFullYear()}</p>}
         </footer>
 
       </div>

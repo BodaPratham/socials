@@ -14,11 +14,27 @@ import {
   Layout,
   PlaySquare,
   Upload,
-  Image as IconImage
+  Image as IconImage,
+  PenLine,
+  Box,
+  Layers,
+  Settings2,
+  Share2,
+  HelpCircle,
+  Link as LinkIcon,
+  Smile,
+  User,
+  MoreHorizontal,
+  Search,
+  QrCode,
+  ShieldCheck,
+  EyeOff,
+  Plus,
+  Minus
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 
-type ViewState = 'main' | 'theme' | 'wallpaper' | 'buttons' | 'text' | 'colors' | 'header' | 'layout' | 'portfolio';
+type ViewState = 'main' | 'wallpaper' | 'buttons' | 'fonts' | 'colors' | 'header' | 'layout' | 'portfolio' | 'general' | 'blocks' | 'social' | 'all_styles' | 'templates' | 'media';
 
 export default function DesignTab({ 
   profile, 
@@ -149,92 +165,101 @@ export default function DesignTab({
     <div className="w-full max-w-2xl mx-auto pb-32 pt-6 pl-2 pr-6 animate-in fade-in duration-500">
        
        {activeView === 'main' && (
-        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 px-2">
-          
-          <div className="space-y-4">
-            <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500 ml-1">Theme</h3>
-            <button 
-              onClick={() => setActiveView('theme')}
-              className="w-full rounded-[2.2rem] p-8 flex items-center justify-between group hover:scale-[0.99] transition-all overflow-hidden relative shadow-2xl h-[140px]"
-              style={{ backgroundColor: bgColor }}
-            >
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-              <div 
-                className="w-[110px] h-[180px] rounded-t-[2rem] rounded-b-xl absolute -bottom-[40px] left-10 p-5 shadow-2xl border border-white/10 flex flex-col items-start pt-[20px] backdrop-blur-md"
-                style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
-              >
-                 <span className="text-[32px] font-black tracking-tighter leading-none mb-1" style={{ color: pageTextColor }}>Aa</span>
-                 <div className="w-full h-10 rounded-lg mt-auto mb-4" style={{ backgroundColor: btnColor }} />
-              </div>
-              <div className="flex items-center gap-2 absolute right-10 font-black text-[16px] uppercase tracking-widest" style={{ color: pageTextColor }}>
-                <span>{selectedTheme}</span>
-                <ChevronRight size={24} />
-              </div>
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex justify-between items-center mb-6 pl-1">
-               <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500">Customize theme</h3>
-               <button 
-                 onClick={() => {
-                     const colors = [
-                        { bg: '#0F172A', btn: '#3B82F6', text: '#FFFFFF' },
-                        { bg: '#111111', btn: '#FFFFFF', text: '#FFFFFF' },
-                        { bg: '#F2EFE8', btn: '#000000', text: '#111111' },
-                        { bg: '#4C1D95', btn: '#8B5CF6', text: '#FFFFFF' },
-                     ];
-                     const c = colors[Math.floor(Math.random() * colors.length)];
-                     updateDesign('bgColor', c.bg);
-                     updateDesign('btnColor', c.btn);
-                     updateDesign('pageTextColor', c.text);
-                     setBgColor(c.bg); setBtnColor(c.btn); setPageTextColor(c.text);
-                 }}
-                 className="flex items-center gap-2 px-6 py-3 bg-white rounded-full text-[12px] font-black uppercase tracking-widest text-zinc-900 shadow-xl hover:scale-105 transition active:scale-95"
-               >
-                  <Grid size={14} /> Shuffle
-               </button>
-            </div>
-            
-            <div className="space-y-4">
-
-              <DesignItem icon={Layout} label="Layout" value={profile.template_id?.split('-').join(' ') || 'Minimal'} onClick={() => setActiveView('layout')} />
-              {profile.template_id === 'creator-pro' && (
-                <DesignItem 
-                  icon={Grid} 
-                  label="Portfolio Content" 
-                  value="Configure" 
-                  onClick={() => setActiveView('portfolio')} 
-                />
-              )}
-              {profile.template_id === 'cafe-restaurant' && (
-                 <DesignItem 
-                   icon={LayoutGrid} 
-                   label="Menu Management" 
-                   value="Configure" 
-                   onClick={() => setActiveView('portfolio')} 
-                 />
-              )}
-              {profile.template_id === 'brand-commerce' && (
-                 <DesignItem 
-                   icon={Grid} 
-                   label="Gallery Management" 
-                   value="Configure" 
-                   onClick={() => setActiveView('portfolio')} 
-                 />
-              )}
-              <DesignItem icon={Type} label="Header" value={titleSize} onClick={() => setActiveView('header')} />
-              <DesignItem icon={ImageIcon} label="Wallpaper" value={wallpaperStyle} onClick={() => setActiveView('wallpaper')} />
-              <DesignItem icon={MousePointer2} label="Buttons" value={buttonStyle} onClick={() => setActiveView('buttons')} />
-              <DesignItem icon={Type} label="Text" value={pageFont} onClick={() => setActiveView('text')} />
-              <DesignItem icon={Palette} label="Colors" value="Custom" onClick={() => setActiveView('colors')} />
-            </div>
-          </div>
+        <div className="space-y-[18px] animate-in fade-in slide-in-from-bottom-2 px-2">
+           <DesignItem icon={PenLine} label="General Styles" value={`${Object.keys(config).filter(k => ['profileSize', 'profileShadow', 'profileBorder'].includes(k)).length || 0}`} onClick={() => setActiveView('general')} />
+           <DesignItem icon={Box} label="Block Styles" value={`${Object.keys(config).filter(k => ['blockColor', 'blockCorner', 'blockShadow'].includes(k)).length || 0}`} onClick={() => setActiveView('blocks')} />
+           <DesignItem icon={Type} label="Fonts" value="3" onClick={() => setActiveView('fonts')} />
+           <DesignItem icon={Palette} label="Colors" value="6" onClick={() => setActiveView('colors')} />
+           <DesignItem icon={Share2} label="Social & Sharing" value="5" onClick={() => setActiveView('social')} />
+           <DesignItem icon={Layers} label="All Styles" value="28" onClick={() => setActiveView('all_styles')} />
+           <DesignItem icon={Grid} label="Templates" value="" onClick={() => setActiveView('templates')} />
+           <DesignItem icon={IconImage} label="Media Gallery" value="" onClick={() => setActiveView('media')} />
         </div>
        )}
 
+       {activeView === 'general' && (
+         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+            <HeaderControls title="General Styles" onBack={() => setActiveView('main')} />
+            
+            <div className="space-y-6 px-2">
+              <div className="space-y-4">
+                <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500 ml-1">Profile Photo</h3>
+                <div className="space-y-8 bg-zinc-900/50 rounded-[2rem] p-8 border border-white/5">
+                   <SliderInput label="Photo size" value={config.profileSize || 50} onChange={(v: any) => updateDesign('profileSize', v)} />
+                   <SliderInput label="Shadow" value={config.profileShadow || 0} onChange={(v: any) => updateDesign('profileShadow', v)} />
+                   <SliderInput label="Border" value={config.profileBorder || 0} onChange={(v: any) => updateDesign('profileBorder', v)} />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500 ml-1">Page Layout</h3>
+                <div className="grid grid-cols-2 gap-4">
+                   <LayoutOption id="classic" label="Classic" active={config.headerLayout === 'classic'} onClick={() => updateDesign('headerLayout', 'classic')} />
+                   <LayoutOption id="centered" label="Centered" active={config.headerLayout === 'centered'} onClick={() => updateDesign('headerLayout', 'centered')} />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500 ml-1">Social Icons</h3>
+                <div className="bg-zinc-900/50 rounded-[2rem] p-8 border border-white/5">
+                   <SliderInput label="Icon size" value={config.socialIconSize || 50} onChange={(v: any) => updateDesign('socialIconSize', v)} />
+                </div>
+              </div>
+            </div>
+         </div>
+       )}
+
+       {activeView === 'blocks' && (
+         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+            <HeaderControls title="Block Styles" onBack={() => setActiveView('main')} />
+            
+            <div className="space-y-6 px-2">
+              <div className="bg-zinc-900/50 rounded-[2rem] p-8 border border-white/5 space-y-8">
+                 <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                       <span className="text-[14px] font-bold text-white">Tactile Blocks</span>
+                       <HelpCircle size={14} className="text-zinc-500" />
+                    </div>
+                    <div className="flex gap-2">
+                       <button 
+                         onClick={() => updateDesign('tactileBlocks', null)}
+                         className={`px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest transition ${!config.tactileBlocks ? 'bg-purple-600 text-white' : 'bg-white/5 text-zinc-500'}`}
+                       >None</button>
+                       <button 
+                         onClick={() => updateDesign('tactileBlocks', 'soft')}
+                         className={`px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest transition ${config.tactileBlocks === 'soft' ? 'bg-purple-600 text-white' : 'bg-white/5 text-zinc-500'}`}
+                       >Soft</button>
+                    </div>
+                 </div>
+
+                 <SliderInput label="Block Corner" value={config.blockCorner || 15} onChange={(v: any) => updateDesign('blockCorner', v)} />
+                 <SliderInput label="Block Shadow" value={config.blockShadow || 0} onChange={(v: any) => updateDesign('blockShadow', v)} />
+                 <SliderInput label="Block Border" value={config.blockBorder || 0} onChange={(v: any) => updateDesign('blockBorder', v)} />
+                 <SliderInput label="Spacing" value={config.blockSpacing || 10} onChange={(v: any) => updateDesign('blockSpacing', v)} />
+              </div>
+            </div>
+         </div>
+       )}
+
+       {activeView === 'social' && (
+         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 px-2">
+            <HeaderControls title="Social & Sharing" onBack={() => setActiveView('main')} />
+            
+            <div className="space-y-4">
+               <div className="bg-zinc-900/50 rounded-[2rem] p-8 border border-white/5 space-y-8">
+                  <ToggleSwitch label="Add to Contacts" description="Show 'Add to Contacts' button on profile" active={config.enableAddContact} onChange={(v: any) => updateDesign('enableAddContact', v)} />
+                  <ToggleSwitch label="Share Button" description="Allow visitors to share your profile" active={config.enableShareButton} onChange={(v: any) => updateDesign('enableShareButton', v)} />
+                  <ToggleSwitch label="Search" description="Show search bar for your links/products" active={config.enableSearch} onChange={(v: any) => updateDesign('enableSearch', v)} />
+                  <ToggleSwitch label="QR Code" description="Show QR code for easy sharing" active={config.enableQRCode} onChange={(v: any) => updateDesign('enableQRCode', v)} />
+                  <ToggleSwitch label="Verified Badge" description="Show a verified checkmark next to your name" active={config.enableVerifiedBadge} onChange={(v: any) => updateDesign('enableVerifiedBadge', v)} />
+                  <ToggleSwitch label="Hide Branding" description="Remove 'Architected by Digital' from footer" active={config.hideBranding} onChange={(v: any) => updateDesign('hideBranding', v)} />
+               </div>
+            </div>
+         </div>
+       )}
+
        {/* THEME VIEW */}
-       {activeView === 'theme' && (
+       {activeView === 'templates' && (
         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
            <HeaderControls title="Theme" onBack={() => setActiveView('main')} />
            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 px-2">
@@ -257,14 +282,9 @@ export default function DesignTab({
                 >
                   <div className={`w-full aspect-[4/5] rounded-[2.5rem] border-4 transition-all overflow-hidden relative shadow-2xl flex items-center justify-center ${
                     profile.template_id === tpl.id ? 'border-purple-500 p-1' : 'border-white/5'
-                  } ${isPremium ? 'opacity-50 grayscale hover:grayscale-0 hover:opacity-100' : ''}`} style={{ backgroundColor: tpl.config?.bgColor || '#111' }}>
+                  }`} style={{ backgroundColor: tpl.config?.bgColor || '#111' }}>
                     
-                    {isPremium && (
-                       <div className="absolute top-4 right-4 px-2.5 py-1.5 bg-black/80 backdrop-blur-md rounded-full flex items-center gap-1.5 border border-white/20 z-20 shadow-xl">
-                          <Zap size={10} className="text-yellow-400 fill-yellow-400 animate-pulse" />
-                          <span className="text-[8px] font-black uppercase tracking-widest text-white">PRO</span>
-                       </div>
-                    )}
+
 
                     <div className="w-full h-full flex flex-col items-center justify-center p-6 relative">
                        {/* Subtle depth gradient */}
@@ -409,7 +429,7 @@ export default function DesignTab({
        )}
 
        {/* TEXT VIEW */}
-       {activeView === 'text' && (
+       {activeView === 'fonts' && (
         <div className="animate-in fade-in slide-in-from-right-4 duration-300 px-2 space-y-10">
            <HeaderControls title="Typography" onBack={() => setActiveView('main')} />
            <div className="space-y-4">
@@ -529,10 +549,11 @@ export default function DesignTab({
              <div className="space-y-4">
                 {[
                   { id: 'minimal-modern', name: 'Minimal Modern', desc: 'Sleek architectural design', free: true },
-                  { id: 'creator-pro', name: 'Creator Pro', desc: 'Bold professional focus', free: false },
+                  { id: 'creator-pro', name: 'Creator Pro', desc: 'Bold professional focus', free: true },
                   { id: 'cafe-restaurant', name: 'Cafe & Restaurant', desc: 'Classic dining and cafe aesthetic', free: true },
-                  { id: 'dhurndhar', name: 'Dhurndhar', desc: 'Creative portfolio for personal creator', free: false },
-                  { id: 'brand-commerce', name: 'Brand & Commerce', desc: 'Optimized for products & sales', free: false }
+                  { id: 'brand-commerce', name: 'Brand & Commerce', desc: 'Optimized for products & sales', free: true },
+                  { id: 'elegant-wellness', name: 'Elegant Wellness', desc: 'Polished health & beauty style', free: true },
+                  { id: 'professional-portfolio', name: 'Professional Portfolio', desc: 'Clean business focus', free: true },
                 ].map(l => (
                   <button 
                     key={l.id} 
@@ -1036,3 +1057,63 @@ export default function DesignTab({
     </div>
   );
 }
+
+const SliderInput = ({ label, value, onChange }: any) => (
+  <div className="space-y-4 w-full">
+     <div className="flex justify-between items-center px-1">
+        <span className="text-[13px] font-bold text-white/80">{label}</span>
+        <span className="text-[12px] font-black text-purple-400">{value}%</span>
+     </div>
+     <div className="relative h-2 bg-white/5 rounded-full overflow-hidden flex items-center group">
+        <input 
+          type="range" 
+          min="0" 
+          max="100" 
+          value={value} 
+          onChange={(e) => onChange(parseInt(e.target.value))}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        />
+        <div 
+          className="h-full bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full transition-all group-hover:brightness-110" 
+          style={{ width: `${value}%` }} 
+        />
+     </div>
+  </div>
+);
+
+const ToggleSwitch = ({ label, description, active, onChange }: any) => (
+  <div className="flex items-center justify-between group">
+     <div className="space-y-0.5">
+        <div className="text-[14px] font-bold text-white">{label}</div>
+        {description && <div className="text-[11px] text-zinc-500 font-medium">{description}</div>}
+     </div>
+     <button 
+       onClick={() => onChange(!active)}
+       className={`w-12 h-6 rounded-full relative transition-all duration-300 ${active ? 'bg-purple-600' : 'bg-white/10'}`}
+     >
+        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${active ? 'left-7 shadow-lg' : 'left-1'}`} />
+     </button>
+  </div>
+);
+
+const LayoutOption = ({ id, label, active, onClick }: any) => (
+  <button 
+    onClick={onClick}
+    className={`p-6 rounded-[1.8rem] border-2 transition-all flex flex-col gap-4 items-center ${active ? 'border-purple-600 bg-purple-600/10' : 'border-white/5 bg-white/2 hover:border-white/10'}`}
+  >
+     <div className="w-full aspect-[4/3] bg-white/5 rounded-xl flex items-center justify-center">
+        {id === 'classic' ? (
+           <div className="flex flex-col items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-white/20" />
+              <div className="w-12 h-2 rounded bg-white/10" />
+           </div>
+        ) : (
+           <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-white/20" />
+              <div className="w-16 h-3 rounded bg-white/10" />
+           </div>
+        )}
+     </div>
+     <span className={`text-[12px] font-black uppercase tracking-widest ${active ? 'text-white' : 'text-zinc-500'}`}>{label}</span>
+  </button>
+);

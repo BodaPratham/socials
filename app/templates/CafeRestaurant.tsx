@@ -22,6 +22,18 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
   const btnColor = config.btnColor || '#c88053'; 
   const btnTextColor = config.btnTextColor || '#FFFFFF';
 
+  // NEW DESIGN TOKENS
+  const profileSize = config.profileSize || 50;
+  const profileShadow = config.profileShadow || 0;
+  const profileBorder = config.profileBorder || 0;
+  const headerLayout = config.headerLayout || 'centered';
+  const tactileBlocks = config.tactileBlocks;
+  const blockCorner = config.blockCorner ?? 16;
+  const blockShadow = config.blockShadow || 0;
+  const blockBorder = config.blockBorder || 0;
+  const blockSpacing = config.blockSpacing ?? 10;
+  const socialIconSize = config.socialIconSize || 50;
+
   // CUSTOM CONFIG FIELDS
   const heroHeadline = config.heroHeadline || "Fall in Love with Coffee in Blissful Delight!";
   const heroButtonText = config.heroButtonText || "Get Started";
@@ -73,7 +85,26 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
            )}
            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
            
-           <div className="relative z-10 mt-auto px-8 pb-20 flex flex-col items-center text-center">
+           <div className={`relative z-10 mt-auto px-8 pb-10 flex flex-col ${headerLayout === 'centered' ? 'items-center text-center' : 'items-start text-left'}`}>
+              <div 
+                className="rounded-full bg-white relative z-20 group transition-transform hover:scale-105 shadow-2xl overflow-hidden mb-6"
+                style={{ 
+                  width: `${60 + (profileSize * 1.5)}px`, 
+                  height: `${60 + (profileSize * 1.5)}px`,
+                  borderWidth: `${profileBorder / 10}px`,
+                  borderColor: config.profileBorderColor || btnColor,
+                  boxShadow: profileShadow > 0 ? `0 ${profileShadow / 5}px ${profileShadow / 2}px rgba(0,0,0,${profileShadow / 200})` : 'none'
+                }}
+              >
+                 {profile?.avatar_url ? (
+                   <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
+                 ) : (
+                   <div className="w-full h-full bg-stone-900 flex items-center justify-center text-stone-700">
+                      <Star size={profileSize + 20} />
+                   </div>
+                 )}
+              </div>
+
               <div className="mb-6 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-2">
                  <MapPin size={14} className="text-orange-400" />
                  <span className="text-[10px] font-bold uppercase tracking-widest">{locationText}</span>
@@ -82,21 +113,37 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
               <div className="mb-4">
                 <h2 className="text-sm font-black uppercase tracking-[0.3em] text-orange-400/80 mb-1">
                   @{profile?.c_username}
+                  {config.enableVerifiedBadge && <Star size={12} fill="#A855F7" className="inline ml-1 text-purple-500" />}
                 </h2>
-                <h3 className="text-xs font-bold opacity-40 uppercase tracking-widest">
+                <h1 className="text-2xl font-bold tracking-tight text-white">
                   {profile?.display_name || "Socials Creator"}
-                </h3>
+                </h1>
               </div>
 
-              <h1 className="text-[2.2rem] font-bold leading-tight tracking-tight text-white mb-6">
+              <h1 className="text-[1.8rem] font-bold leading-tight tracking-tight text-white mb-6">
                 {heroHeadline}
               </h1>
-              <p className="text-zinc-300/80 text-sm px-4 leading-relaxed line-clamp-3 italic opacity-60">
-                {profile?.bio || "Welcome to our cozy coffee corner, where every cup is a delightful experience built for you."}
+              <p className={`text-zinc-300/80 text-sm leading-relaxed italic opacity-60 ${headerLayout === 'centered' ? 'px-4 line-clamp-3' : 'text-left'}`}>
+                {profile?.bio || "Welcome to our cozy coffee corner."}
               </p>
+
+              {/* ACTION BUTTONS (Share, Add Contact) */}
+              <div className="flex gap-2 mt-6 w-full">
+                 {config.enableAddContact && (
+                   <button className="flex-1 py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                      <Plus size={12} /> Add Contact
+                   </button>
+                 )}
+                 {config.enableShareButton && (
+                   <button className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 text-white">
+                      <Share2 size={18} />
+                   </button>
+                 )}
+              </div>
+
               <button 
                 onClick={scrollToMenu}
-                className="mt-10 w-full py-5 rounded-2xl font-bold text-lg shadow-2xl active:scale-95 transition-all text-white hover:scale-[1.02]"
+                className="mt-6 w-full py-5 rounded-2xl font-bold text-lg shadow-2xl active:scale-95 transition-all text-white hover:scale-[1.02]"
                 style={{ backgroundColor: btnColor }}
               >
                 {heroButtonText}
@@ -207,13 +254,22 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
               }
 
               return (
-                <a 
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center p-5 rounded-[2rem] bg-white/5 border border-white/5 hover:bg-white/10 active:scale-95 transition-all group"
-                >
+                 <a 
+                   key={link.id}
+                   href={link.url}
+                   target="_blank"
+                   rel="noreferrer"
+                   className="flex items-center p-5 transition-all group"
+                   style={{ 
+                     backgroundColor: `rgba(255,255,255,0.05)`, 
+                     borderColor: blockBorder > 0 ? `${pageTextColor}${Math.round(blockBorder * 2.55).toString(16).padStart(2, '0')}` : `rgba(255,255,255,0.05)`,
+                     borderWidth: `${blockBorder / 10}px`,
+                     marginBottom: `${blockSpacing}px`,
+                     borderRadius: `${blockCorner}px`,
+                     boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
+                     background: tactileBlocks === 'soft' ? `linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))` : undefined
+                   }}
+                 >
                   <div className="shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12" style={{ backgroundColor: `${btnColor}22`, color: btnColor }}>
                      {getSocialIcon(link, 24)}
                   </div>
@@ -232,8 +288,12 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
            <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center mb-8 border border-white/5 shadow-inner">
               <Coffee size={28} style={{ color: btnColor }} />
            </div>
-           <p className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-10">Architected by Digital</p>
-           <p className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-10 mt-2 italic">Socials &copy; {new Date().getFullYear()}</p>
+           {!config.hideBranding && (
+             <>
+               <p className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-10">Architected by Digital</p>
+               <p className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-10 mt-2 italic">Socials &copy; {new Date().getFullYear()}</p>
+             </>
+           )}
         </footer>
 
       </div>

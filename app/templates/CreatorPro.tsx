@@ -23,6 +23,19 @@ export default function CreatorPro({ profile, links = [], products = [] }: any) 
   const btnTextColor = config.btnTextColor || '#000000';
   const bgImage = config.bgImage;
   const buttonRoundness = config.buttonRoundness || 'Round';
+  const buttonStyle = config.buttonStyle || 'Solid';
+
+  // NEW DESIGN TOKENS
+  const profileSize = config.profileSize || 50;
+  const profileShadow = config.profileShadow || 0;
+  const profileBorder = config.profileBorder || 0;
+  const headerLayout = config.headerLayout || 'centered';
+  const tactileBlocks = config.tactileBlocks;
+  const blockCorner = config.blockCorner ?? 16;
+  const blockShadow = config.blockShadow || 0;
+  const blockBorder = config.blockBorder || 0;
+  const blockSpacing = config.blockSpacing ?? 10;
+  const socialIconSize = config.socialIconSize || 50;
 
   // STATS & SECTIONS (CREATOR SPECIFIC)
   const stats = config.stats || [
@@ -105,39 +118,75 @@ export default function CreatorPro({ profile, links = [], products = [] }: any) 
            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
         </div>
 
-        {/* OVERLAPPING PROFILE SECTION */}
-        <div className="px-8 -mt-20 relative z-20">
-           <div className="flex items-end gap-6">
-              <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 shadow-2xl transition-transform hover:scale-105 duration-500" style={{ borderColor: bgColor }}>
-                 {profile?.avatar_url ? (
-                   <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
-                 ) : (
-                   <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                      <Star size={40} className="text-white/10" />
-                   </div>
-                 )}
-              </div>
-              <div className="pb-2 space-y-1">
-                 <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">{profile?.c_username || "CREATIVE PRO"}</h1>
-                 <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">Digital Architect</p>
-              </div>
-           </div>
+         {/* OVERLAPPING PROFILE SECTION */}
+         <div className={`px-8 -mt-20 relative z-20 flex flex-col ${headerLayout === 'centered' ? 'items-center text-center' : 'items-start text-left'}`}>
+            <div className={`flex ${headerLayout === 'centered' ? 'flex-col items-center' : 'items-end'} gap-6`}>
+               <div 
+                 className="rounded-3xl overflow-hidden border-4 shadow-2xl transition-transform hover:scale-105 duration-500" 
+                 style={{ 
+                   borderColor: bgColor,
+                   width: `${60 + (profileSize * 1.5)}px`, 
+                   height: `${60 + (profileSize * 1.5)}px`,
+                   borderWidth: `${profileBorder / 10}px`,
+                   boxShadow: profileShadow > 0 ? `0 ${profileShadow / 5}px ${profileShadow / 2}px rgba(0,0,0,${profileShadow / 200})` : 'none'
+                 }}
+               >
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
+                  ) : (
+                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                       <Star size={profileSize + 20} className="text-white/10" />
+                    </div>
+                  )}
+               </div>
+               <div className={`pb-2 space-y-1 ${headerLayout === 'centered' ? 'items-center' : 'items-start'}`}>
+                  <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">
+                    {profile?.c_username || "CREATIVE PRO"}
+                    {config.enableVerifiedBadge && <Star size={16} fill="#A855F7" className="inline ml-2 text-purple-500" />}
+                  </h1>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">Digital Architect</p>
+               </div>
+            </div>
+ 
+            <div className={`mt-10 space-y-6 w-full ${headerLayout === 'centered' ? 'items-center' : ''}`}>
+               <p className={`text-sm font-bold opacity-60 leading-relaxed italic border-l-2 ${headerLayout === 'centered' ? 'mx-auto max-w-xs' : 'pl-6'}`} style={{ borderColor: `${pageTextColor}20` }}>
+                  {profile?.bio || "Pushing boundaries at the intersection of design and technology."}
+               </p>
+ 
+               {/* ACTION BUTTONS (Share, Add Contact) */}
+               <div className={`flex gap-2 ${headerLayout === 'centered' ? 'justify-center' : ''}`}>
+                  {config.enableAddContact && (
+                    <button className="px-6 py-2 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                       <Plus size={12} /> Add Contact
+                    </button>
+                  )}
+                  {config.enableShareButton && (
+                    <button className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/10 text-white">
+                       <Share2 size={16} />
+                    </button>
+                  )}
+               </div>
 
-           <div className="mt-10 space-y-6">
-              <p className="text-sm font-bold opacity-60 leading-relaxed italic border-l-2 pl-6" style={{ borderColor: `${pageTextColor}20` }}>
-                 {profile?.bio || "Pushing boundaries at the intersection of design and technology. Creating high-fidelity digital experiences."}
-              </p>
-
-              {/* SOCIAL CHIPS */}
-              <div className="flex flex-wrap gap-3">
-                 {socialRowLinks?.map((s: any) => (
-                    <a key={s.id} href={s.url} target="_blank" rel="noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black hover:scale-110 active:scale-95 transition-all">
-                       {getSocialIcon(s, 18)}
-                    </a>
-                 ))}
-              </div>
-           </div>
-        </div>
+               {/* SOCIAL CHIPS */}
+               <div className={`flex flex-wrap ${headerLayout === 'centered' ? 'justify-center' : ''} gap-3 w-full`}>
+                  {socialRowLinks?.map((s: any) => (
+                     <a 
+                       key={s.id} 
+                       href={s.url} 
+                       target="_blank" 
+                       rel="noreferrer" 
+                       className="flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black hover:scale-110 active:scale-95 transition-all"
+                       style={{ 
+                         width: `${32 + (socialIconSize / 2.5)}px`, 
+                         height: `${32 + (socialIconSize / 2.5)}px`
+                       }}
+                     >
+                        {getSocialIcon(s, 16 + (socialIconSize / 10))}
+                     </a>
+                  ))}
+               </div>
+            </div>
+         </div>
 
         {/* STATS SECTION */}
         <section className="mt-20 px-8">
@@ -316,8 +365,15 @@ export default function CreatorPro({ profile, links = [], products = [] }: any) 
                     target="_blank" 
                     rel="noreferrer" 
                     onClick={() => trackClick(link.id)}
-                    className={`flex items-center justify-between p-6 sm:p-7 border transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-2xl ${getButtonShapeClasses()}`} 
-                    style={{ backgroundColor: `rgba(255,255,255,0.03)`, borderColor: `rgba(255,255,255,0.08)` }}
+                    className={`flex items-center justify-between p-6 sm:p-7 border transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-2xl`} 
+                    style={{ 
+                      backgroundColor: `rgba(255,255,255,0.03)`, 
+                      borderColor: blockBorder > 0 ? `${pageTextColor}${Math.round(blockBorder * 2.55).toString(16).padStart(2, '0')}` : `rgba(255,255,255,0.08)`,
+                      marginBottom: `${blockSpacing}px`,
+                      borderRadius: `${blockCorner}px`,
+                      boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
+                      background: tactileBlocks === 'soft' ? `linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))` : undefined
+                    }}
                  >
                     <div className="space-y-1">
                        <h4 className="text-lg font-black tracking-tighter uppercase italic leading-none">{link.title}</h4>
@@ -334,7 +390,7 @@ export default function CreatorPro({ profile, links = [], products = [] }: any) 
         {/* FOOTER */}
         <footer className="mt-56 border-t py-32 flex flex-col items-center gap-12" style={{ borderTopColor: `${pageTextColor}10` }}>
               <div className="text-center space-y-6">
-                 <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-20">Architected by Digital</p>
+                 {!config.hideBranding && <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-20">Architected by Digital</p>}
                  <div className="flex flex-col items-center justify-center gap-6">
                     <div className="w-14 h-14 rounded-[1.2rem] bg-white flex items-center justify-center text-black text-xl font-black italic shadow-2xl border-4 border-white/10">S</div>
                     <span className="text-sm font-black tracking-[0.3em] uppercase" style={{ color: pageTextColor }}>Socials <span className="opacity-20 italic">Pro</span></span>
