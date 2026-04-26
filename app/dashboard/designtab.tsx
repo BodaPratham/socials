@@ -530,7 +530,7 @@ export default function DesignTab({
                 {[
                   { id: 'minimal-modern', name: 'Minimal Modern', desc: 'Sleek architectural design', free: true },
                   { id: 'creator-pro', name: 'Creator Pro', desc: 'Bold professional focus', free: false },
-                  { id: 'cafe-restaurant', name: 'Cafe & Restaurant', desc: 'Classic dining and cafe aesthetic', free: false },
+                  { id: 'cafe-restaurant', name: 'Cafe & Restaurant', desc: 'Classic dining and cafe aesthetic', free: true },
                   { id: 'dhurndhar', name: 'Dhurndhar', desc: 'Creative portfolio for personal creator', free: false },
                   { id: 'brand-commerce', name: 'Brand & Commerce', desc: 'Optimized for products & sales', free: false }
                 ].map(l => (
@@ -779,6 +779,45 @@ export default function DesignTab({
              {/* CAFE & RESTAURANT SECTIONS */}
              {profile.template_id === 'cafe-restaurant' && (
                <div className="space-y-10">
+                 
+                 {/* HERO / ONBOARDING CONFIG */}
+                 <div className="space-y-6">
+                    <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500 ml-1">Landing Screen config</h3>
+                    <div className="space-y-4">
+                       <div className="space-y-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Hero Title Line</span>
+                          <input 
+                            type="text" 
+                            value={config.heroHeadline || ""} 
+                            onChange={(e) => updateDesign('heroHeadline', e.target.value)}
+                            placeholder="e.g. Fall in Love with Coffee in Blissful Delight!"
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl p-4 text-white font-bold placeholder:opacity-20 outline-none focus:border-purple-500 transition-all"
+                          />
+                       </div>
+                       <div className="space-y-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Get Started Custom Line (Button Text)</span>
+                          <input 
+                            type="text" 
+                            value={config.heroButtonText || ""} 
+                            onChange={(e) => updateDesign('heroButtonText', e.target.value)}
+                            placeholder="e.g. Get Started"
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl p-4 text-white font-bold placeholder:opacity-20 outline-none focus:border-purple-500 transition-all"
+                          />
+                       </div>
+                       <div className="space-y-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Location Subtext</span>
+                          <input 
+                            type="text" 
+                            value={config.locationText || ""} 
+                            onChange={(e) => updateDesign('locationText', e.target.value)}
+                            placeholder="e.g. Bilzen, Tanjungbalai"
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl p-4 text-white font-bold placeholder:opacity-20 outline-none focus:border-purple-500 transition-all"
+                          />
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* MENU CATEGORIES */}
                  <div className="space-y-6">
                     <div className="flex justify-between items-center px-1">
                        <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500">Menu Categories</h3>

@@ -1,345 +1,283 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Instagram, Youtube, Twitter, Linkedin, Facebook, 
-  Globe, Play, ShoppingBag, Heart, ExternalLink, 
-  ImageIcon, Type, Users, Link2, DollarSign, CreditCard,
-  Mail, Phone, Share2, Music, Video, MessageCircle, MapPin,
-  ArrowRight, ArrowUpRight, Plus, Star, Zap, ChevronRight,
-  Send, Smartphone, Coffee, Camera, Layers, Monitor,
-  Trello, Github, Figma, Disc, Utensils, Clock
+  Search, SlidersHorizontal, ChevronLeft, MapPin,
+  Star
 } from 'lucide-react';
 
 export default function CafeRestaurant({ profile, links = [], products = [] }: any) {
   const config = profile?.design_config || {};
   
   // DESIGN TOKENS
-  const bgColor = config.bgColor || '#FDFCF8'; // Creamy White
+  const bgColor = config.bgColor || '#1A1A1A'; 
   const pageFont = config.pageFont || 'Montserrat'; 
-  const pageTextColor = config.pageTextColor || '#1A1A1A';
-  const btnColor = config.btnColor || '#1A1A1A';
+  const pageTextColor = config.pageTextColor || '#FFFFFF';
+  const btnColor = config.btnColor || '#c88053'; 
   const btnTextColor = config.btnTextColor || '#FFFFFF';
-  const bgImage = config.bgImage;
-  const logoUrl = config.logoUrl;
-  const buttonRoundness = config.buttonRoundness || 'Round';
 
-  // MENU DATA (CAFE SPECIFIC)
-  const menuCategories = config.menuCategories || ['Signature Drinks', 'Handcrafted Pastries'];
+  // CUSTOM CONFIG FIELDS FROM DASHBOARD
+  const heroHeadline = config.heroHeadline || "Fall in Love with Coffee in Blissful Delight!";
+  const heroButtonText = config.heroButtonText || "Get Started";
+  const locationText = config.locationText || "Bilzen, Tanjungbalai";
+
+  const menuCategories = config.menuCategories || ['All Coffee', 'Machiato', 'Latte', 'Americano'];
   const menuItems = products || [];
 
-  const socialRowLinks = links?.filter((l: any) => l.type === 'social');
-  const mainContentLinks = links?.filter((l: any) => l.type !== 'social');
-
-  const getYoutubeId = (url: string) => {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
-
-  const trackClick = async (linkId: string) => {
-    const { createClient } = require("@/utils/supabase/client");
-    const supabase = createClient();
-    await supabase.from('link_clicks').insert({ user_id: profile.id, link_id: linkId });
-  };
-
-  const getSocialIcon = (link: any, size = 18) => {
-    const type = link?.icon_type?.toLowerCase() || "";
-    const u = link?.url?.toLowerCase() || "";
-    
-    if (type === 'instagram' || u.includes('instagram.com')) return <Instagram size={size} />;
-    if (type === 'youtube' || u.includes('youtube.com')) return <Youtube size={size} />;
-    if (type === 'facebook' || u.includes('facebook.com')) return <Facebook size={size} />;
-    if (type === 'linkedin' || u.includes('linkedin.com')) return <Linkedin size={size} />;
-    if (type === 'x' || type === 'twitter' || u.includes('twitter.com') || u.includes('x.com')) return <Twitter size={size} />;
-    if (type === 'phone' || u.includes('tel:')) return <Phone size={size} />;
-    if (type === 'email' || u.includes('mailto:')) return <Mail size={size} />;
-    
-    return <Link2 size={size} />;
-  };
-
-  const getButtonShapeClasses = () => {
-    if (buttonRoundness === 'Square') return 'rounded-none';
-    if (buttonRoundness === 'Round') return 'rounded-2xl';
-    if (buttonRoundness === 'Rounder') return 'rounded-[2.5rem]';
-    return 'rounded-full';
-  };
+  const [activeScreen, setActiveScreen] = useState<'splash' | 'menu' | 'detail'>('splash');
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [activeCategory, setActiveCategory] = useState(menuCategories[0] || 'All Coffee');
+  const [activeSize, setActiveSize] = useState('M');
 
   return (
     <div 
-      className="min-h-screen w-full relative selection:bg-amber-100 selection:text-amber-900" 
-      style={{ 
-        backgroundColor: bgColor, 
-        fontFamily: pageFont,
-        color: pageTextColor 
-      }}
+      className="min-h-screen w-full relative selection:bg-orange-900 selection:text-white" 
+      style={{ backgroundColor: '#000000', fontFamily: pageFont }}
     >
       <link href={`https://fonts.googleapis.com/css2?family=${pageFont.replace(/ /g, '+')}:ital,wght@0,100..900;1,100..900&display=swap`} rel="stylesheet" />
       
-      {/* GLOBAL BACKGROUND */}
-      {bgImage && (
-        <div className="fixed inset-0 z-0 overflow-hidden opacity-10">
-           <img src={bgImage} className="w-full h-full object-cover" style={{ filter: config.wallpaperStyle === 'Blur' ? 'blur(15px)' : 'none' }} alt="" />
-        </div>
-      )}
-
-      {/* MOBILE CONTENT WRAPPER */}
-      <div className="relative z-10 w-full max-w-[500px] mx-auto min-h-screen shadow-2xl pb-32 border-x overflow-hidden" 
-      style={{ backgroundColor: `${bgColor}F0`, borderColor: `${pageTextColor}10` }}>
+      {/* MOBILE CENTERED WRAPPER */}
+      <div 
+        className="relative z-10 w-full max-w-[430px] mx-auto min-h-screen shadow-2xl overflow-hidden flex flex-col"
+        style={{ backgroundColor: bgColor, color: pageTextColor }}
+      >
         
-        {/* HERO SECTION */}
-        <div className="relative w-full h-[35dvh] overflow-hidden bg-stone-100">
-           {profile?.cover_url ? (
-             <img src={profile.cover_url} className="w-full h-full object-cover" alt="Ambience" />
-           ) : (
-             <div className="w-full h-full bg-stone-200 flex items-center justify-center opacity-30">
-                <Utensils size={64} />
-             </div>
-           )}
-           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/40 to-transparent" />
-        </div>
+        {/* =========================================
+            SPLASH SCREEN
+            ========================================= */}
+        {activeScreen === 'splash' && (
+          <div className="absolute inset-0 w-full h-full flex flex-col bg-black">
+             {profile?.avatar_url ? (
+               <img src={profile.avatar_url} className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-lighten" alt="Splash Background" />
+             ) : (
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-stone-900 to-black"></div>
+             )}
+             
+             {/* Gradient Overlay for text readability */}
+             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
 
-        {/* PROFILE OVERLAP BADGE */}
-        <div className="px-8 -mt-24 relative z-20 flex flex-col items-center">
-           <div className="w-40 h-40 rounded-full border-[10px] shadow-2xl overflow-hidden bg-white" style={{ borderColor: bgColor }}>
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Brand Logo" />
-              ) : (
-                <div className="w-full h-full bg-stone-100 flex items-center justify-center text-stone-300">
-                  <Coffee size={60} />
-                </div>
-              )}
-           </div>
-           
-           <div className="mt-8 text-center space-y-3">
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic">{profile?.c_username || "THE ARTISAN CUP"}</h1>
-              <div className="flex items-center justify-center gap-3">
-                 <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 rounded-full border border-amber-100">
-                    <Star size={10} className="fill-amber-400 text-amber-400" />
-                    <span className="text-[10px] font-black uppercase text-amber-900 tracking-widest">Premium Choice</span>
-                 </div>
-              </div>
-              <p className="max-w-xs mx-auto text-sm font-bold opacity-50 italic leading-relaxed pt-2">
-                 {profile?.bio || "Crafting moments through exceptional roasts and authentic flavors. Experience the art of culinary precision."}
-              </p>
-           </div>
-
-           {/* SOCIAL CHIPS */}
-           <div className="flex flex-wrap justify-center gap-3 mt-10">
-              {socialRowLinks?.map((s: any) => (
-                 <a 
-                   key={s.id} 
-                   href={s.url} 
-                   target="_blank" 
-                   rel="noreferrer" 
-                   className="w-12 h-12 flex items-center justify-center rounded-2xl bg-current/5 border border-current/10 hover:scale-110 active:scale-95 transition-all text-current"
-                 >
-                    {getSocialIcon(s, 20)}
-                 </a>
-              ))}
-           </div>
-        </div>
-
-        {/* DYNAMIC MENU BLOCKS */}
-        <section className="mt-24 px-8 space-y-20">
-           {/* CATEGORIZED PRODUCTS AS MENU ITEMS */}
-           {menuCategories.map((category: string) => {
-              const items = menuItems.filter((i: any) => i.category === category || (!i.category && category === menuCategories[0]));
-              if (items.length === 0) return null;
-
-              return (
-                 <div key={category} className="space-y-12">
-                    <div className="flex items-center gap-4">
-                       <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-30 italic whitespace-nowrap">{category}</h2>
-                       <div className="h-[1px] w-full bg-current opacity-10" />
-                    </div>
-                    
-                    <div className="space-y-10">
-                       {items.map((p: any) => (
-                          <a 
-                            key={p.id} 
-                                                         href={p.destination_url || `/${profile.c_username}/checkout?type=product&id=${p.id}`}
-                             target="_blank"
-                             rel="noreferrer"
-
-                            className="group flex gap-6 items-start text-left"
-                          >
-                             <div className="w-24 h-24 shrink-0 rounded-3xl overflow-hidden bg-stone-100 shadow-lg relative group-hover:scale-105 transition-transform duration-500">
-                                {p.image_url ? (
-                                   <img src={p.image_url} className="w-full h-full object-cover" alt="" />
-                                ) : <Utensils size={24} className="absolute inset-0 m-auto opacity-10" />}
-                             </div>
-                             <div className="flex-1 space-y-1 min-w-0">
-                                <div className="flex justify-between items-end gap-4 overflow-hidden">
-                                   <h4 className="text-xl font-black uppercase italic truncate tracking-tight">{p.name}</h4>
-                                   <div className="h-[1px] flex-1 mb-1 border-b border-dotted border-current opacity-20" />
-                                   <span className="text-xl font-bold tracking-tighter opacity-80 whitespace-nowrap">₹{p.price}</span>
-                                </div>
-                                <p className="text-xs font-bold opacity-40 leading-relaxed italic line-clamp-2">{p.description || "Indulge in our chef's special creation with premium ingredients."}</p>
-                                <div className="flex items-center gap-1.5 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                   <span className="text-[9px] font-black uppercase tracking-widest">Order Now</span>
-                                   <Plus size={12} />
-                                </div>
-                             </div>
-                          </a>
-                       ))}
-                    </div>
-                 </div>
-              );
-           })}
-
-           {/* OTHER BLOCKS */}
-           {mainContentLinks?.map((link: any) => {
-              
-              if (link.type === 'title') {
-                return (
-                   <div key={link.id} className="pt-10 flex flex-col items-center text-center gap-4">
-                      <div className="w-12 h-1 px-1 bg-amber-400 rounded-full" />
-                      <h3 className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30 italic">{link.title}</h3>
-                   </div>
-                );
-              }
-
-              if (link.type === 'tip') {
-                return (
-                   <div key={link.id} className={`p-10 border shadow-2xl space-y-8 group relative overflow-hidden bg-stone-900 text-stone-100 ${getButtonShapeClasses()}`}>
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 blur-[60px] pointer-events-none" />
-                      <div className="space-y-2 text-center">
-                         <h4 className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">Support the Chef</h4>
-                         <h3 className="text-3xl font-black tracking-tighter uppercase italic">{link.title || "Gratitude Jar"}</h3>
-                      </div>
-                      <button 
-                        onClick={() => profile?.upi_id && (window.location.href = `upi://pay?pa=${profile.upi_id}`)}
-                        className={`w-full py-5 text-[10px] font-black uppercase tracking-[0.4em] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl bg-amber-400 text-stone-900 ${getButtonShapeClasses()}`}
-                      >
-                         Send Appreciation
-                      </button>
-                   </div>
-                );
-              }
-
-              if (link.type === 'youtube') {
-                 const vidId = getYoutubeId(link.url);
-                 return vidId ? (
-                   <div key={link.id} className={`w-full aspect-video overflow-hidden shadow-2xl relative border-4 border-current/5 ${getButtonShapeClasses()}`}>
-                      <iframe className="w-full h-full" src={`https://www.youtube.com/embed/${vidId}`} frameBorder="0" allowFullScreen />
-                   </div>
-                 ) : null;
-              }
-
-              if (link.type === 'instagram') {
-                 const username = link.url?.replace('@', '').split('/').pop() || "instagram";
-                 return (
-                    <div key={link.id} className={`p-8 border shadow-lg space-y-6 bg-stone-50/50 ${getButtonShapeClasses()}`} style={{ borderColor: `${pageTextColor}10` }}>
-                       <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                             <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center border shadow-inner text-[#E1306C]">
-                                <Instagram size={24} />
-                             </div>
-                             <h4 className="text-sm font-black italic tracking-tight">@{username}</h4>
-                          </div>
-                          <a href={`https://instagram.com/${username}`} className="w-10 h-10 rounded-full border border-current flex items-center justify-center opacity-20 hover:opacity-100 transition-opacity"><ArrowUpRight size={18} /></a>
-                       </div>
-                    </div>
-                 );
-              }
-
-              if (link.type === 'image') {
-                 return (
-                    <div key={link.id} className={`w-full aspect-square overflow-hidden shadow-2xl border-stone-100 border p-3 ${getButtonShapeClasses()}`}>
-                       <img src={link.url} className="w-full h-full object-cover rounded-[inherit] transition-transform duration-1000 hover:scale-110" alt="" />
-                    </div>
-                 );
-              }
-
-              // SHOP BLOCK (Inline Product Card - Café Style)
-              if (link.type === 'shop') {
-                const product = products?.find((p: any) => p.id === link.url) 
-                  || products?.find((p: any) => p.name === link.title)
-                  || (products?.length === 1 ? products[0] : null);
+             {/* Content */}
+             <div className="relative z-10 mt-auto px-8 pb-16 flex flex-col items-center text-center animate-in slide-in-from-bottom-10 duration-1000">
+                <h1 className="text-[2.2rem] font-bold leading-tight tracking-tight text-white px-2">
+                  {heroHeadline}
+                </h1>
                 
-                const displayName = product?.name || link.title || 'Product';
-                const displayPrice = product?.price || '—';
-                const displayImage = product?.image_url;
-                const displayDesc = product?.description;
-                const checkoutUrl = product?.destination_url || (product 
-                  ? `/${profile?.c_username}/checkout?type=product&id=${product.id}`
-                  : '#');
+                <p className="text-zinc-300/80 text-sm mt-4 px-4 font-normal leading-relaxed">
+                  {profile?.bio || "Welcome to our cozy coffee corner, where every cup is a delightful for you."}
+                </p>
 
-                return (
-                  <a 
-                    key={link.id}
-                    href={checkoutUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() => trackClick(link.id)}
-                    className="group flex gap-6 items-start text-left"
+                <button 
+                  onClick={() => setActiveScreen('menu')}
+                  className="mt-10 w-full py-4 rounded-2xl font-bold text-lg shadow-xl shadow-orange-900/20 active:scale-95 transition-all text-white"
+                  style={{ backgroundColor: btnColor }}
+                >
+                  {heroButtonText}
+                </button>
+             </div>
+          </div>
+        )}
+
+        {/* =========================================
+            MENU SCREEN
+            ========================================= */}
+        {activeScreen === 'menu' && (
+          <div className="flex-1 flex flex-col w-full h-full overflow-y-auto pb-10 bg-[#1e1e1e] animate-in fade-in zoom-in-95 duration-500">
+             
+             {/* Header */}
+             <div className="px-6 pt-12">
+               <span className="text-zinc-400 text-xs font-medium">Location</span>
+               <div className="flex items-center gap-1 mt-1 text-white font-semibold">
+                  <span>{locationText}</span>
+                  <ChevronLeft size={16} className="rotate-270" />
+               </div>
+             </div>
+
+             {/* Search Bar */}
+             <div className="px-6 mt-6 flex items-center gap-4">
+                <div className="flex-1 bg-[#2a2a2a] rounded-2xl flex items-center px-4 py-3 border border-white/5">
+                   <Search size={20} className="text-zinc-500 mr-3" />
+                   <input 
+                     type="text" 
+                     placeholder="Search coffee" 
+                     className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-zinc-500"
+                   />
+                </div>
+                <button className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 shadow-lg active:scale-95 transition-all" style={{ backgroundColor: btnColor, color: btnTextColor }}>
+                   <SlidersHorizontal size={20} />
+                </button>
+             </div>
+
+             {/* Promo Banner */}
+             <div className="px-6 mt-8">
+                <div className="w-full relative rounded-[2rem] overflow-hidden bg-gradient-to-r from-[#ce875c] to-amber-700 h-36 flex border border-white/10 shadow-2xl">
+                   {config.promoBannerUrl ? (
+                      <img src={config.promoBannerUrl} className="absolute inset-0 w-full h-full object-cover" alt="Promo" />
+                   ) : (
+                     <>
+                        <div className="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-bold uppercase px-2 py-1 rounded-full tracking-wider z-10">Promo</div>
+                        <div className="relative z-10 flex flex-col justify-center px-6 text-white h-full max-w-[60%]">
+                          <h2 className="text-3xl font-bold leading-none mt-4 -ml-1">Buy one get</h2>
+                          <div className="flex items-center">
+                             <span className="text-3xl font-bold leading-none -ml-1">one</span>
+                             <span className="text-3xl font-bold leading-none ml-2">FREE</span>
+                          </div>
+                        </div>
+                        <div className="absolute right-0 bottom-0 w-40 h-40">
+                           {/* Decorative circles */}
+                           <div className="absolute top-4 right-4 w-24 h-24 rounded-full border-4 border-white/20 shadow-[-10px_10px_20px_rgba(0,0,0,0.2)]"></div>
+                           <div className="absolute top-8 right-8 w-16 h-16 rounded-full border-2 border-white/10 bg-black/20 backdrop-blur-sm flex items-center justify-center">
+                             <div className="w-8 h-8 rounded-full bg-[#ce875c]"></div>
+                           </div>
+                        </div>
+                     </>
+                   )}
+                </div>
+             </div>
+
+             {/* Categories */}
+             <div className="mt-8 px-6 flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                {menuCategories.map((cat: string) => (
+                  <button 
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all shadow-sm ${activeCategory === cat ? '' : 'bg-transparent text-zinc-400 bg-white/5'}`}
+                    style={activeCategory === cat ? { backgroundColor: btnColor, color: btnTextColor } : {}}
                   >
-                    <div className="w-24 h-24 shrink-0 rounded-3xl overflow-hidden bg-stone-100 shadow-lg relative group-hover:scale-105 transition-transform duration-500">
-                      {displayImage ? (
-                        <img src={displayImage} className="w-full h-full object-cover" alt={displayName} />
-                      ) : <ShoppingBag size={24} className="absolute inset-0 m-auto opacity-10" />}
-                    </div>
-                    <div className="flex-1 space-y-1 min-w-0">
-                      <div className="flex justify-between items-end gap-4 overflow-hidden">
-                        <h4 className="text-xl font-black uppercase italic truncate tracking-tight">{displayName}</h4>
-                        <div className="h-[1px] flex-1 mb-1 border-b border-dotted border-current opacity-20" />
-                        <span className="text-xl font-bold tracking-tighter opacity-80 whitespace-nowrap">₹{displayPrice}</span>
+                    {cat}
+                  </button>
+                ))}
+             </div>
+
+             {/* Product Grid */}
+             <div className="mt-6 px-6 grid grid-cols-2 gap-4 pb-10">
+                {menuItems.filter((p: any) => activeCategory === 'All Coffee' ? true : p.category === activeCategory).map((p: any) => (
+                   <button 
+                     key={p.id}
+                     onClick={() => {
+                        setSelectedProduct(p);
+                        setActiveScreen('detail');
+                     }}
+                     className="bg-white rounded-3xl p-3 flex flex-col items-center text-left hover:scale-[1.02] active:scale-95 transition-all relative group shadow-sm"
+                   >
+                     <div className="w-full aspect-square rounded-2xl overflow-hidden bg-stone-100 relative">
+                        {p.image_url ? (
+                           <img src={p.image_url} className="w-full h-full object-cover" alt={p.name} />
+                        ) : (
+                           <div className="w-full h-full bg-[#3c2a21] flex items-center justify-center">Coffee</div>
+                        )}
+                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full flex items-center gap-1 text-[9px] text-white font-bold">
+                           <Star size={8} className="fill-amber-400 text-amber-400" />
+                           4.8
+                        </div>
+                     </div>
+                     <div className="w-full mt-3 px-1">
+                        <h4 className="text-[15px] font-bold text-zinc-900 leading-tight">{p.name}</h4>
+                        <p className="text-[10px] text-zinc-400 mt-1 truncate">{p.description || "Deep Foam"}</p>
+                        <div className="flex items-center justify-between mt-3">
+                           <span className="text-lg font-bold text-zinc-900 tracking-tight">$ {(p.price || 0).toFixed(2)}</span>
+                           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-lg leading-none shadow-md" style={{ backgroundColor: btnColor }}>
+                              +
+                           </div>
+                        </div>
+                     </div>
+                   </button>
+                ))}
+             </div>
+          </div>
+        )}
+
+        {/* =========================================
+            DETAIL SCREEN
+            ========================================= */}
+        {activeScreen === 'detail' && selectedProduct && (
+          <div className="flex-1 flex flex-col w-full h-full overflow-y-auto bg-stone-50 animate-in slide-in-from-right duration-300">
+             
+             {/* Product Image Section */}
+             <div className="relative w-full h-[50dvh] bg-[#3c2a21] rounded-b-[3rem] overflow-hidden shadow-sm">
+                {selectedProduct.image_url && (
+                   <img src={selectedProduct.image_url} className="w-full h-full object-cover" alt={selectedProduct.name} />
+                )}
+                
+                {/* Back Button */}
+                <button 
+                  onClick={() => setActiveScreen('menu')}
+                  className="absolute top-12 left-6 w-10 h-10 bg-white flex items-center justify-center shadow-lg text-black rounded-xl active:scale-95 transition-all"
+                >
+                   <ChevronLeft size={24} />
+                </button>
+             </div>
+
+             {/* Detail Content */}
+             <div className="px-6 pt-6 pb-24 text-zinc-900">
+                <div className="flex justify-between items-start">
+                   <div>
+                     <h2 className="text-2xl font-bold">{selectedProduct.name}</h2>
+                     <p className="text-zinc-500 text-xs mt-1">Ice/Hot</p>
+                   </div>
+                   <div className="flex gap-2">
+                      <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-zinc-500">
+                         {/* Icons matching screenshot */}
+                         ⭐
                       </div>
-                      <p className="text-xs font-bold opacity-40 leading-relaxed italic line-clamp-2">{displayDesc || "A curated selection from our collection."}</p>
-                      <div className="flex items-center gap-1.5 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="text-[9px] font-black uppercase tracking-widest">View Details</span>
-                        <ArrowRight size={12} />
-                      </div>
-                    </div>
-                  </a>
-                );
-              }
+                      <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-zinc-500">☕</div>
+                   </div>
+                </div>
 
-              // TEXT BLOCK
-              if (link.type === 'text') {
-                return (
-                  <div key={link.id} className="px-2 py-4">
-                    <p className="text-sm font-bold italic leading-relaxed opacity-50 whitespace-pre-line">{link.url}</p>
-                  </div>
-                );
-              }
+                <div className="flex items-center gap-1 mt-3 text-sm font-bold text-zinc-800">
+                   <Star size={16} className="fill-amber-400 text-amber-400" />
+                   <span className="text-lg">4.8</span>
+                   <span className="text-zinc-400 ml-1 font-normal">(230)</span>
+                </div>
 
-              // DEFAULT LINK
-              return (
-                 <a 
-                    key={link.id} 
-                    href={link.url} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    onClick={() => trackClick(link.id)}
-                    className={`flex items-center p-6 sm:p-7 group transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] border shadow-xl ${getButtonShapeClasses()}`} 
-                    style={{ backgroundColor: `${btnColor}05`, borderColor: `${btnColor}10` }}
-                 >
-                    <div className="flex-1 space-y-1">
-                       <h4 className="text-lg font-black tracking-tighter uppercase italic leading-none">{link.title}</h4>
-                       <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20 truncate">{link.url?.replace(/^https?:\/\//, '').split('/')[0]}</p>
-                    </div>
-                    <div className="w-12 h-12 rounded-full bg-current/5 flex items-center justify-center opacity-20 group-hover:opacity-100 group-hover:-translate-y-1 transition-all">
-                       <ArrowRight size={20} />
-                    </div>
-                 </a>
-              );
-           })}
-        </section>
+                <div className="mt-8">
+                   <h3 className="text-lg font-bold">Description</h3>
+                   <p className="text-zinc-400 text-sm mt-3 leading-relaxed">
+                      {selectedProduct.description || "A cappuccino is an approximately 150 ml (5 oz) beverage, with 25 ml of espresso coffee and 85ml of fresh milk... "}
+                      <span className="font-bold cursor-pointer" style={{ color: btnColor }}>Read More</span>
+                   </p>
+                </div>
 
-        {/* FOOTER */}
-        <footer className="mt-56 border-t py-32 flex flex-col items-center gap-12" style={{ borderTopColor: `${pageTextColor}10` }}>
-              <div className="text-center space-y-6">
-                 <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-20 italic">Architected by Digital</p>
-                 <div className="flex flex-col items-center justify-center gap-6">
-                    <div className="w-14 h-14 rounded-[1.2rem] bg-stone-900 flex items-center justify-center text-white text-xl font-black italic shadow-2xl border-4 border-amber-400">S</div>
-                    <span className="text-sm font-black tracking-[0.3em] uppercase">Socials <span className="opacity-20 italic">Pro</span></span>
-                 </div>
-              </div>
-              <a href="/" className="px-10 py-4 bg-stone-900 text-stone-100 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">Create your menu</a>
-          </footer>
+                <div className="mt-8">
+                   <h3 className="text-lg font-bold">Size</h3>
+                   <div className="flex gap-4 mt-3">
+                      {['S', 'M', 'L'].map(size => (
+                         <button 
+                           key={size}
+                           onClick={() => setActiveSize(size)}
+                           className={`flex-1 py-3 rounded-2xl font-semibold border-2 transition-all ${activeSize === size ? 'bg-stone-50' : 'bg-white border-stone-200 text-stone-900'}`}
+                           style={activeSize === size ? { borderColor: btnColor, color: btnColor } : {}}
+                         >
+                            {size}
+                         </button>
+                      ))}
+                   </div>
+                </div>
+             </div>
+
+             {/* Bottom Buy Bar */}
+             <div className="fixed bottom-0 w-full max-w-[430px] bg-white rounded-t-[2.5rem] px-6 py-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] border-t border-stone-100">
+                <div className="flex items-center justify-between gap-6">
+                   <div className="flex flex-col">
+                      <span className="text-zinc-400 text-sm font-medium">Price</span>
+                      <span className="text-2xl font-bold tracking-tight" style={{ color: btnColor }}>
+                        $ {(selectedProduct.price || 0).toFixed(2)}
+                      </span>
+                   </div>
+                   <button 
+                     onClick={() => {
+                        window.open(selectedProduct.destination_url || `/${profile.c_username}/checkout?type=product&id=${selectedProduct.id}`, '_blank');
+                     }}
+                     className="flex-1 py-4 rounded-3xl font-bold text-lg text-white shadow-xl active:scale-95 transition-all text-center"
+                     style={{ backgroundColor: btnColor }}
+                   >
+                      Buy Now
+                   </button>
+                </div>
+             </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
