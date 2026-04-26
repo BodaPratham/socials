@@ -115,6 +115,21 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
           </div>
         )}
 
+        {/* PROMO BANNER */}
+        <div className="px-6 mt-10">
+            <div className="w-full relative rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-stone-800 to-stone-900 h-40 flex border border-white/5 shadow-2xl">
+                {config.promoBannerUrl ? (
+                    <img src={config.promoBannerUrl} className="absolute inset-0 w-full h-full object-cover" alt="Promo" />
+                ) : (
+                    <div className="relative z-10 flex flex-col justify-center px-8 text-white h-full">
+                        <div className="bg-orange-500 w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase mb-3">Special Offer</div>
+                        <h2 className="text-2xl font-bold leading-tight">Claim your free <br/> cup of bliss</h2>
+                        <p className="text-xs opacity-50 mt-2">Visit us today</p>
+                    </div>
+                )}
+            </div>
+        </div>
+
         {/* MENU / SHOP SECTION */}
         {products?.length > 0 && (
           <section ref={menuRef} className="px-6 pt-12 pb-10">
