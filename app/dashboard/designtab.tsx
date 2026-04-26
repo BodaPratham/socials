@@ -34,6 +34,7 @@ export default function DesignTab({
   const [uploading, setUploading] = useState(false);
   const logoRef = React.useRef<HTMLInputElement>(null);
   const bgRef = React.useRef<HTMLInputElement>(null);
+  const promoRef = React.useRef<HTMLInputElement>(null);
   
   const supabase = createClient();
 
@@ -74,19 +75,19 @@ export default function DesignTab({
       .eq('id', profile.id);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'bg') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'bg' | 'promo') => {
     const file = e.target.files?.[0];
     if (!file || !profile?.id) return;
     
     setUploading(true);
     try {
-      const path = `${type === 'logo' ? 'logos' : 'wallpapers'}/${profile.id}-${Date.now()}`;
+      const path = `${type === 'logo' ? 'logos' : type === 'bg' ? 'wallpapers' : 'promos'}/${profile.id}-${Date.now()}`;
       const { data, error } = await supabase.storage.from('avatars').upload(path, file);
       
       if (error) throw error;
       
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
-      updateDesign(type === 'logo' ? 'logoUrl' : 'bgImage', publicUrl);
+      updateDesign(type === 'logo' ? 'logoUrl' : type === 'bg' ? 'bgImage' : 'promoBannerUrl', publicUrl);
     } catch (err) {
       console.error("Upload error:", err);
       alert("Upload failed. Make sure the 'avatars' bucket is public.");
@@ -321,7 +322,6 @@ export default function DesignTab({
                
                <div className="pt-6">
                   <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500 ml-1 mb-4">Custom Wallpaper</h3>
-                  <input type="file" ref={bgRef} hidden onChange={(e) => handleFileUpload(e, 'bg')} accept="image/*" />
                   <button 
                     onClick={() => bgRef.current?.click()}
                     className="w-full h-40 rounded-[2.5rem] border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-4 hover:bg-white/10 transition-all group overflow-hidden relative"
@@ -417,11 +417,14 @@ export default function DesignTab({
            <HeaderControls title="Typography" onBack={() => setActiveView('main')} />
            <div className="space-y-4">
               <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500">Page Font</h3>
+              <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Inter:wght@400;700;900&family=Space+Grotesk:wght@400;700&family=Outfit:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;700&family=Syne:wght@400;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Bebas+Neue&family=Clash+Display:wght@400;500;600;700&family=Roboto:wght@400;700;900&family=Lato:wght@400;700;900&family=Open+Sans:wght@400;700;800&family=Oswald:wght@400;700&family=Raleway:wght@400;700;900&family=Ubuntu:wght@400;700&family=Nunito:wght@400;700;900&family=Merriweather:ital,wght@0,400;0,700;0,900&display=swap" rel="stylesheet" />
               <div className="grid grid-cols-1 gap-3">
                  {[
                     'Montserrat', 'Inter', 'Space Grotesk', 'Outfit', 
                     'Plus Jakarta Sans', 'Syne', 'Playfair Display', 
-                    'Poppins', 'Lora', 'Bebas Neue', 'Clash Display'
+                    'Poppins', 'Lora', 'Bebas Neue', 'Clash Display',
+                    'Roboto', 'Lato', 'Open Sans', 'Oswald', 
+                    'Raleway', 'Ubuntu', 'Nunito', 'Merriweather'
                  ].map(font => (
                     <button 
                       key={font} onClick={() => { setPageFont(font); updateDesign('pageFont', font); }}

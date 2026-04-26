@@ -638,6 +638,8 @@ useEffect(() => {
 )}
             {activeTab === "shop" && (
               <ShopTab
+                profile={profile}
+                setProfile={setProfile}
                 products={products}
                 setProducts={setProducts}
                 productImgRef={productImgRef}

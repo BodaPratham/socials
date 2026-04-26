@@ -13,6 +13,7 @@ import {
 
 export default function MinimalModern({ profile, links = [], products = [] }: any) {
   const config = profile?.design_config || {};
+  const currencySign = config.currency || "$";
   
   // 0. DESIGN CONFIG EXTRACTION
   const theme = config.theme || 'Minimal';
@@ -348,7 +349,7 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
                         </div>
                       )}
                       <div className="absolute top-3 right-3 px-3 py-1.5 bg-white/90 backdrop-blur-md rounded-full shadow-xl border border-black/5">
-                        <span className="text-[11px] font-black text-purple-600">₹{displayPrice}</span>
+                        <span className="text-[11px] font-black text-purple-600">{currencySign}{displayPrice}</span>
                       </div>
                     </div>
                     <div className="p-5 flex items-center justify-between">
@@ -427,7 +428,7 @@ export default function MinimalModern({ profile, links = [], products = [] }: an
                          <img src={p.image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={p.name} />
                        ) : <ShoppingBag size={30} className="absolute inset-0 m-auto opacity-10" />}
                        <div className="absolute top-2 right-2 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full shadow-xl border border-black/5">
-                          <span className="text-[10px] font-black text-purple-600">₹{p.price}</span>
+                          <span className="text-[10px] font-black text-purple-600">{currencySign}{p.price}</span>
                        </div>
                     </div>
                     <div className="px-1 text-center">

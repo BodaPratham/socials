@@ -138,10 +138,7 @@ const socialPlatforms = [
             <input
               value={profile.c_username || ""}
               onChange={(e) => {
-                const normalized = e.target.value
-                  .toLowerCase()
-                  .replace(/\s+/g, '-') // spaces to hyphens
-                  .replace(/[^a-z0-z0-9\-]/g, ''); // removed special chars
+                const normalized = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
                 setProfile({ ...profile, c_username: normalized });
               }}
               className="w-full p-4 border rounded-2xl font-bold text-sm outline-none bg-transparent placeholder-zinc-500"

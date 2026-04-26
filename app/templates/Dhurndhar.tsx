@@ -13,6 +13,7 @@ import {
 
 export default function Dhurndhar({ profile, links = [], products = [] }: any) {
   const config = profile?.design_config || {};
+  const currencySign = config.currency || "$";
   
   // DESIGN TOKENS
   const bgColor = config.bgColor || '#FFD600'; // Vibrant Yellow
@@ -151,7 +152,7 @@ export default function Dhurndhar({ profile, links = [], products = [] }: any) {
                           <img src={p.image_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="" />
                        ) : <ShoppingBag size={48} className="absolute inset-0 m-auto opacity-10" />}
                        <div className="absolute top-6 left-6 p-3 px-5 bg-black text-white text-xs font-black tracking-widest skew-x-[-10deg]">
-                          ₹{p.price}
+                          {currencySign}{p.price}
                        </div>
                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                           <span className="text-white font-black uppercase tracking-[0.4em] italic text-xl border-b-4 border-white">Acquire Now</span>
@@ -258,7 +259,7 @@ export default function Dhurndhar({ profile, links = [], products = [] }: any) {
                         </div>
                       )}
                       <div className="absolute top-4 left-4 p-3 px-5 bg-black text-white text-xs font-black tracking-widest skew-x-[-10deg]">
-                        ₹{displayPrice}
+                        {currencySign}{displayPrice}
                       </div>
                     </div>
                     <div className="p-6 flex items-center justify-between">

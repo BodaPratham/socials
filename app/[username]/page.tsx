@@ -11,7 +11,7 @@ export default async function PublicProfile(props: { params: Promise<{ username:
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('c_username', username.toLowerCase())
+    .ilike('c_username', username)
     .single()
 
   if (!profile) notFound()

@@ -22,7 +22,7 @@ export default async function CheckoutPage(props: {
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('c_username', username)
+    .ilike('c_username', username)
     .single()
 
   if (!profile) notFound()

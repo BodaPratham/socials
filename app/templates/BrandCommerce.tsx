@@ -13,6 +13,7 @@ import {
 
 export default function BrandCommerce({ profile, links = [], products = [] }: any) {
   const config = profile?.design_config || {};
+  const currencySign = config.currency || "$";
   
   // DESIGN TOKENS
   const bgColor = config.bgColor || '#FFFFFF';
@@ -172,7 +173,7 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
                              <img src={p.image_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="" />
                           ) : <ShoppingBag size={48} className="absolute inset-0 m-auto opacity-10" />}
                           <div className="absolute top-6 left-6 p-4 px-6 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-white/20">
-                             <span className="text-sm font-black tracking-tight" style={{ color: btnColor }}>₹{p.price}</span>
+                             <span className="text-sm font-black tracking-tight" style={{ color: btnColor }}>{currencySign}{p.price}</span>
                           </div>
                        </div>
                        <div className="flex justify-between items-end px-2">
@@ -283,7 +284,7 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
                         <img src={displayImage} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={displayName} />
                       ) : <ShoppingBag size={48} className="absolute inset-0 m-auto opacity-10" />}
                       <div className="absolute top-6 left-6 p-4 px-6 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-white/20">
-                        <span className="text-sm font-black tracking-tight" style={{ color: btnColor }}>₹{displayPrice}</span>
+                        <span className="text-sm font-black tracking-tight" style={{ color: btnColor }}>{currencySign}{displayPrice}</span>
                       </div>
                     </div>
                     <div className="flex justify-between items-end px-2">

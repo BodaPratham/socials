@@ -13,6 +13,7 @@ import {
 
 export default function CreatorPro({ profile, links = [], products = [] }: any) {
   const config = profile?.design_config || {};
+  const currencySign = config.currency || "$";
   
   // DESIGN TOKENS
   const bgColor = config.bgColor || '#0A0A0A'; // Deep Black
@@ -281,7 +282,7 @@ export default function CreatorPro({ profile, links = [], products = [] }: any) 
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                       <div className="absolute top-4 right-4 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full shadow-xl">
-                        <span className="text-[11px] font-black text-black">₹{displayPrice}</span>
+                        <span className="text-[11px] font-black text-black">{currencySign}{displayPrice}</span>
                       </div>
                     </div>
                     <div className="p-6 flex items-center justify-between">
