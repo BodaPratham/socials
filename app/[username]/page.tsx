@@ -4,7 +4,7 @@ import { RenderTemplate } from '@/app/templates' // Import your template engine
 
 export default async function PublicProfile(props: { params: Promise<{ username: string }> }) {
   const params = await props.params;
-  const username = params.username;
+  const username = decodeURIComponent(params.username);
   const supabase = await createClient()
 
   // 1. Fetch Profile (Ensuring case-insensitive matching by lowercasing the param)

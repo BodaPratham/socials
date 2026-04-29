@@ -121,38 +121,87 @@ export default function ElegantWellness({ profile, links = [], products = [] }: 
         {/* FEATURED CARDS */}
         <div className="px-5 space-y-6">
            {mainLinks.map((link: any) => {
-              if (link.type === 'image' || link.type === 'shop' || link.type === 'standard') {
+              if (link.type === 'title') {
+                return (
+                  <div key={link.id} className="pt-10 pb-4 text-center">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 italic">{link.title}</h3>
+                  </div>
+                );
+              }
+
+              if (link.type === 'youtube') {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                const match = link.url?.match(regExp);
+                const vidId = (match && match[2].length === 11) ? match[2] : null;
+                return vidId ? (
+                  <div key={link.id} className={`w-full aspect-video overflow-hidden shadow-xl mb-6 ${blockCorner}px`} style={{ borderRadius: `${blockCorner}px` }}>
+                    <iframe className="w-full h-full" src={`https://www.youtube.com/embed/${vidId}`} frameBorder="0" allowFullScreen />
+                  </div>
+                ) : null;
+              }
+
+              if (link.type === 'instagram') {
+                 const username = link.url?.replace('@', '').split('/').pop() || "instagram";
                  return (
-                   <a 
-                     key={link.id} 
-                     href={link.url} 
-                     target="_blank" 
-                     rel="noreferrer"
-                     className="group block bg-white/40 backdrop-blur-xl border border-white/60 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
-                    style={{ 
-                      marginBottom: `${blockSpacing}px`,
-                      borderRadius: `${blockCorner}px`,
-                      borderWidth: `${blockBorder / 10}px`,
-                      boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
-                      background: tactileBlocks === 'soft' ? `linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2))` : undefined
-                    }}
-                   >
-                      <div className="flex">
-                         {link.url && (link.url.includes('jpg') || link.url.includes('png')) ? (
-                            <div className="w-32 h-32 shrink-0 overflow-hidden bg-zinc-100 border-r border-white/10">
-                               <img src={link.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={link.title} />
-                            </div>
-                         ) : (
-                            <div className="w-32 h-32 shrink-0 bg-[#E8E1D9] flex items-center justify-center opacity-20">
-                               <Globe size={40} />
-                            </div>
-                         )}
-                         <div className="p-6 flex flex-col justify-center flex-1">
-                            <h3 className="font-bold text-[15px] group-hover:text-amber-900 transition-colors">{link.title}</h3>
-                            <p className="text-[11px] opacity-40 mt-1 line-clamp-2 italic">Book an appointment or view details.</p>
-                         </div>
-                      </div>
-                   </a>
+                    <div key={link.id} className="p-8 bg-white/40 backdrop-blur-xl border border-white/60 shadow-sm flex items-center justify-between" style={{ borderRadius: `${blockCorner}px`, marginBottom: `${blockSpacing}px` }}>
+                       <div className="flex items-center gap-4">
+                          <Instagram size={20} className="text-[#E1306C]" />
+                          <h4 className="text-sm font-bold italic">@{username}</h4>
+                       </div>
+                       <a href={`https://instagram.com/${username}`} className="opacity-20 hover:opacity-100 transition-opacity"><ArrowUpRight size={18} /></a>
+                    </div>
+                 );
+              }
+
+              if (link.type === 'tip') {
+                return (
+                   <div key={link.id} className="p-10 bg-white/40 backdrop-blur-xl border border-white/60 shadow-lg text-center space-y-6" style={{ borderRadius: `${blockCorner}px`, marginBottom: `${blockSpacing}px` }}>
+                      <h3 className="text-xl font-bold italic">{link.title || "Support My Work"}</h3>
+                      <button 
+                        onClick={() => profile?.upi_id && (window.location.href = `upi://pay?pa=${profile.upi_id}`)}
+                        className="px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-xl hover:scale-105 transition-all"
+                        style={{ backgroundColor: btnColor, borderRadius: '9999px' }}
+                      >
+                         Send Gratitude
+                      </button>
+                   </div>
+                );
+              }
+
+              if (link.type === 'image' || link.type === 'shop' || link.type === 'standard' || link.type === 'menu_item' || link.type === 'gallery_item') {
+                 return (
+                    <a 
+                      key={link.id} 
+                      href={link.url} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="group block bg-white/40 backdrop-blur-xl border border-white/60 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+                     style={{ 
+                       marginBottom: `${blockSpacing}px`,
+                       borderRadius: `${blockCorner}px`,
+                       borderWidth: `${blockBorder / 10}px`,
+                       boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
+                       background: tactileBlocks === 'soft' ? `linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2))` : undefined
+                     }}
+                    >
+                       <div className="flex">
+                          {link.url && (link.url.includes('jpg') || link.url.includes('png') || link.url.includes('webp')) ? (
+                             <div className="w-32 h-32 shrink-0 overflow-hidden bg-zinc-100 border-r border-white/10">
+                                <img src={link.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={link.title} />
+                             </div>
+                          ) : (
+                             <div className="w-32 h-32 shrink-0 bg-[#E8E1D9] flex items-center justify-center opacity-20">
+                                {link.type === 'menu_item' ? <Coffee size={40} /> : <Globe size={40} />}
+                             </div>
+                          )}
+                          <div className="p-6 flex flex-col justify-center flex-1">
+                             <h3 className="font-bold text-[15px] group-hover:text-amber-900 transition-colors">{link.title}</h3>
+                             <p className="text-[11px] opacity-40 mt-1 line-clamp-2 italic">
+                                {link.type === 'menu_item' ? "Special Selection" : "View Details & Explorer"}
+                             </p>
+                          </div>
+                       </div>
+                    </a>
                  );
               }
               return null;

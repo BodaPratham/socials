@@ -4,7 +4,8 @@ import React from 'react';
 import { 
   Instagram, Youtube, Twitter, Linkedin, Facebook, 
   ArrowUpRight, Share2, Globe, Shield, Zap, Search,
-  Menu, X, ExternalLink, Play, ShoppingBag, ArrowRight, Plus
+  Menu, X, ExternalLink, Play, ShoppingBag, ArrowRight, Plus,
+  MapPin, Star, Mail, Phone, ChevronRight, Heart, Coffee
 } from 'lucide-react';
 
 export default function ProfessionalPortfolio({ profile, links = [], products = [] }: any) {
@@ -159,27 +160,95 @@ export default function ProfessionalPortfolio({ profile, links = [], products = 
            <section className="mt-24 px-5">
               <h4 className="text-[10px] font-black uppercase tracking-[0.5em] opacity-20 text-center mb-10">Links / Items</h4>
               <div className="space-y-4">
-                 {mainLinks.map((link: any) => (
-                     <a 
-                       key={link.id} 
-                       href={link.url} 
-                       target="_blank" 
-                       rel="noreferrer"
-                       className="flex items-center justify-between p-6 transition-all group"
-                       style={{ 
-                         backgroundColor: `rgba(255,255,255,0.03)`, 
-                         borderColor: blockBorder > 0 ? `${pageTextColor}${Math.round(blockBorder * 2.55).toString(16).padStart(2, '0')}` : `rgba(255,255,255,0.05)`,
-                         marginBottom: `${blockSpacing}px`,
-                         borderRadius: `${blockCorner}px`,
-                         borderWidth: `${blockBorder / 10}px`,
-                         boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
-                         background: tactileBlocks === 'soft' ? `linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))` : undefined
-                       }}
-                     >
-                       <span className="text-sm font-bold opacity-80 group-hover:opacity-100">{link.title}</span>
-                       <ArrowRight size={16} className="opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                    </a>
-                 ))}
+                  {mainLinks.map((link: any) => {
+                      if (link.type === 'title') {
+                        return (
+                          <div key={link.id} className="pt-10 flex items-center gap-4">
+                            <h3 className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.5em] opacity-30 italic">{link.title}</h3>
+                            <div className="h-[1px] w-full bg-white/10" />
+                          </div>
+                        );
+                      }
+
+                      if (link.type === 'youtube') {
+                        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                        const match = link.url?.match(regExp);
+                        const vidId = (match && match[2].length === 11) ? match[2] : null;
+                        return vidId ? (
+                          <div key={link.id} className={`w-full aspect-video overflow-hidden shadow-2xl relative border border-white/10 ${blockCorner}px`} style={{ borderRadius: `${blockCorner}px` }}>
+                            <iframe className="w-full h-full grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-700" src={`https://www.youtube.com/embed/${vidId}`} frameBorder="0" allowFullScreen />
+                          </div>
+                        ) : null;
+                      }
+
+                      if (link.type === 'instagram') {
+                         const username = link.url?.replace('@', '').split('/').pop() || "instagram";
+                         return (
+                            <div key={link.id} className={`p-8 border border-white/10 shadow-2xl space-y-8 bg-white/5 backdrop-blur-md`} style={{ borderRadius: `${blockCorner}px`, marginBottom: `${blockSpacing}px` }}>
+                               <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-4">
+                                     <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center border border-white/10 shadow-inner">
+                                        <Instagram size={24} />
+                                     </div>
+                                     <h4 className="text-sm font-bold italic tracking-tight">@{username}</h4>
+                                  </div>
+                                  <a href={`https://instagram.com/${username}`} className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 active:scale-90 transition-all"><ArrowUpRight size={18} /></a>
+                               </div>
+                            </div>
+                         );
+                      }
+
+                      if (link.type === 'tip') {
+                        return (
+                           <div key={link.id} className={`p-10 bg-gradient-to-br from-zinc-800 to-zinc-900 border border-white/10 shadow-2xl text-center space-y-8 group`} style={{ borderRadius: `${blockCorner}px`, marginBottom: `${blockSpacing}px` }}>
+                              <div className="space-y-2">
+                                 <h4 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-20">Direct Support</h4>
+                                 <h3 className="text-3xl font-black tracking-tighter uppercase italic">{link.title || "Gratitude Jar"}</h3>
+                              </div>
+                              <button 
+                                onClick={() => profile?.upi_id && (window.location.href = `upi://pay?pa=${profile.upi_id}`)}
+                                className={`w-full py-5 text-[10px] font-black uppercase tracking-[0.4em] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl`}
+                               style={{ backgroundColor: btnColor, color: '#000000', borderRadius: `${blockCorner}px` }}
+                              >
+                                 Send Gratitude
+                              </button>
+                           </div>
+                        );
+                      }
+
+                      if (link.type === 'image' || link.type === 'menu_item' || link.type === 'gallery_item') {
+                         return (
+                            <div key={link.id} className={`w-full aspect-square overflow-hidden shadow-2xl border border-white/10 p-2`} style={{ borderRadius: `${blockCorner}px`, marginBottom: `${blockSpacing}px` }}>
+                               <img src={link.url} className="w-full h-full object-cover transition-transform duration-1000 hover:scale-110 grayscale hover:grayscale-0" alt={link.title} />
+                            </div>
+                         );
+                      }
+
+                      return (
+                         <a 
+                           key={link.id} 
+                           href={link.url} 
+                           target="_blank" 
+                           rel="noreferrer"
+                           className="flex items-center justify-between p-6 transition-all group"
+                           style={{ 
+                             backgroundColor: `rgba(255,255,255,0.03)`, 
+                             borderColor: blockBorder > 0 ? `${pageTextColor}${Math.round(blockBorder * 2.55).toString(16).padStart(2, '0')}` : `rgba(255,255,255,0.05)`,
+                             marginBottom: `${blockSpacing}px`,
+                             borderRadius: `${blockCorner}px`,
+                             borderWidth: `${blockBorder / 10}px`,
+                             boxShadow: blockShadow > 0 ? `0 ${blockShadow / 5}px ${blockShadow / 2}px rgba(0,0,0,${blockShadow / 200})` : 'none',
+                             background: tactileBlocks === 'soft' ? `linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))` : undefined
+                           }}
+                         >
+                           <div className="space-y-1">
+                              <h4 className="text-lg font-black tracking-tighter uppercase italic leading-none">{link.title}</h4>
+                              <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-20">{link.url?.replace(/^https?:\/\//, '').split('/')[0]}</p>
+                           </div>
+                           <ArrowRight size={16} className="opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                        </a>
+                      );
+                  })}
               </div>
            </section>
         )}

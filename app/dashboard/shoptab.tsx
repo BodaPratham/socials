@@ -34,7 +34,12 @@ export default function ShopTab({
     { value: '€', label: 'EUR (€)' },
     { value: '£', label: 'GBP (£)' },
     { value: '₹', label: 'INR (₹)' },
-    { value: 'KSh', label: 'KES (KSh)' }
+    { value: 'KSh', label: 'KES (KSh)' },
+    { value: '₦', label: 'NGN (₦)' },
+    { value: 'R', label: 'ZAR (R)' },
+    { value: 'S$', label: 'SGD (S$)' },
+    { value: '¥', label: 'JPY (¥)' },
+    { value: 'A$', label: 'AUD (A$)' }
   ];
   return (
     <div className="space-y-12 animate-in fade-in duration-500 pb-20 px-2 lg:px-4">

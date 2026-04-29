@@ -9,7 +9,7 @@ export default async function CheckoutPage(props: {
   searchParams: Promise<{ type?: string, id?: string, title?: string, success?: string }>
 }) {
   const params = await props.params;
-  const username = params.username;
+  const username = decodeURIComponent(params.username);
   const searchParams = await props.searchParams;
   const type = searchParams.type;
   const productId = searchParams.id;

@@ -304,6 +304,17 @@ export default function BrandCommerce({ profile, links = [], products = [] }: an
                  );
               }
 
+              if (link.type === 'gallery_item') {
+                return (
+                   <div key={link.id} className={`w-full aspect-square overflow-hidden mb-8 border border-current/10 p-2 shadow-2xl group ${getButtonShapeClasses()}`}>
+                      <img src={link.url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={link.title} />
+                      <div className="absolute inset-x-2 bottom-2 p-4 bg-white/90 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-center" style={{ color: btnColor }}>{link.title || "Collection Item"}</p>
+                      </div>
+                   </div>
+                );
+              }
+
               // SHOP BLOCK (Inline Product Card - Commerce Style)
               if (link.type === 'shop') {
                 const product = products?.find((p: any) => p.id === link.url) 

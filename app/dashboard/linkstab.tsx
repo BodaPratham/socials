@@ -301,11 +301,11 @@ const socialPlatforms = [
                                             <input 
                                                 value={link.url}
                                                 onChange={(e) => setLinks(links.map((l: any) => l.id === link.id ? { ...l, url: e.target.value } : l))}
-                                                placeholder={link.type === 'image' ? "Direct image URL (e.g. .jpg, .png)" : link.type === 'file' ? "Direct file URL (e.g. .pdf)" : "Target URL"}
+                                                placeholder={link.type === 'image' || link.type === 'menu_item' || link.type === 'gallery_item' ? "Direct image URL (e.g. .jpg, .png)" : link.type === 'file' ? "Direct file URL (e.g. .pdf)" : "Target URL"}
                                                 className="w-full bg-transparent border-b p-1 text-sm outline-none placeholder-zinc-700 font-bold"
                                                 style={{ borderColor: panelBorder }}
                                             />
-                                            {(link.type === 'image' || link.type === 'file') && (
+                                            {(link.type === 'image' || link.type === 'file' || link.type === 'menu_item' || link.type === 'gallery_item') && (
                                                 <div className="relative shrink-0 flex">
                                                     <input
                                                         type="file"

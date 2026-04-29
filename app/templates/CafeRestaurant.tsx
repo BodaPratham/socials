@@ -253,6 +253,32 @@ export default function CafeRestaurant({ profile, links = [], products = [] }: a
                 );
               }
 
+              if (link.type === 'menu_item') {
+                return (
+                  <div 
+                    key={link.id} 
+                    className="flex items-center gap-4 p-4 rounded-3xl border border-white/5 bg-white/5 group hover:bg-white/10 transition-all shadow-sm"
+                  >
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-stone-900 shrink-0 border border-white/10">
+                       {link.url ? (
+                         <img src={link.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={link.title} />
+                       ) : (
+                         <div className="w-full h-full flex items-center justify-center text-stone-700">
+                            <Coffee size={24} />
+                         </div>
+                       )}
+                    </div>
+                    <div className="flex-1">
+                       <h4 className="font-bold text-sm text-white">{link.title || "Menu Item"}</h4>
+                       <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">Custom Selection</p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                       <Plus size={16} />
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                  <a 
                    key={link.id}

@@ -109,14 +109,15 @@ export async function updateProfile(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
 
-  const c_username = formData.get('c_username') as string
+  let c_username = formData.get('c_username') as string
+  c_username = c_username ? c_username.replace(/[^a-zA-Z0-9\s]/g, '') : '';
   const bio = formData.get('bio') as string
   const upi = formData.get('upi') as string
 
   const { error } = await supabase
     .from('profiles')
     .update({ 
-      c_username: c_username.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-z0-9\-]/g, ''), // Clean the username
+      c_username: c_username,
       bio, 
       upi_id: upi 
     })
