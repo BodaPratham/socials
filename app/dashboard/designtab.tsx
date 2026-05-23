@@ -862,7 +862,7 @@ export default function DesignTab({
                                   newCats[index] = e.target.value;
                                   updateDesign('menuCategories', newCats);
                                }}
-                               className="flex-1 bg-black/20 border-white/5 rounded-xl p-2 text-white font-bold outline-none font-bold"
+                               className="flex-1 bg-black/20 border-white/5 rounded-xl p-2 text-white font-bold outline-none"
                              />
                              <button 
                                onClick={() => {

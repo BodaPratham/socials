@@ -4,7 +4,7 @@ import React from 'react';
 import { 
   Instagram, Youtube, Twitter, Linkedin, Facebook, 
   MapPin, Star, Mail, Phone, ChevronRight, 
-  ArrowUpRight, Share2, Globe, Heart, Plus
+  ArrowUpRight, Share2, Globe, Heart, Plus, Coffee
 } from 'lucide-react';
 
 export default function ElegantWellness({ profile, links = [], products = [] }: any) {
